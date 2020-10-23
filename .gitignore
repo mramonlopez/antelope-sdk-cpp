@@ -1,0 +1,8 @@
+*.out
+*.out.*
+app
+# .vscode/
+specs.json
+*.o
+*.stats
+*.abi
