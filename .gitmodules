@@ -1,9 +1,6 @@
 [submodule "abieos"]
 	path = abieos
 	url = https://github.com/EOSIO/abieos.git
-[submodule "json"]
-	path = json
-	url = https://github.com/nlohmann/json.git
 [submodule "secp256k1"]
 	path = secp256k1
 	url = https://github.com/bitcoin-core/secp256k1.git
