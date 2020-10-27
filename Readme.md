@@ -38,7 +38,7 @@ cd ..
 
 **For abieos**: use gcc-8 and g++-8 !
 
-**Before anything** follow fix: https://github.com/EOSIO/abieos/issues/84
+**Before anything** follow fix: https://github.com/EOSIO/abieos/issues/88
 
 Make abieos:
 ```bash
