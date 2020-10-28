@@ -166,7 +166,7 @@ void get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_i
 	HexStrToUchar(chain_id_bytes, chain_id.c_str(), 32);
 
 	std::uint64_t ref_block_num = response_json["last_irreversible_block_num"].get<std::uint64_t>();
-	tnx_json["ref_block_num"] = ref_block_num;
+	tnx_json["ref_block_num"] = (std::uint16_t) (ref_block_num & ((std::uint16_t)0xFFFFFFFF));
 }
 void get_last_block_info(json &tnx_json)
 {
