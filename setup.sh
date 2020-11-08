@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# echo "Start: Make Secp256k1"
-# cd secp256k1/
-# ./autogen.sh
-# ./configure --enable-module-recovery --without-bignum
-# make
-# cd ..
-# echo "Done: Make Secp256k1"
+echo "Start: Make Secp256k1"
+cd secp256k1/
+./autogen.sh
+./configure --enable-module-recovery --without-bignum
+make
+cd ..
+echo "Done: Make Secp256k1"
 
 
-# echo "Start: Make cryptopp"
-# cd cryptopp/
-# make
-# cd ..
-# echo "Done: Make cryptopp"
+echo "Start: Make cryptopp"
+cd cryptopp/
+make
+cd ..
+echo "Done: Make cryptopp"
 
 echo "Start: Make abieos"
 cd abieos/
