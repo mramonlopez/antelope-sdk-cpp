@@ -47,7 +47,8 @@ T check_context(abieos_context *context, int line, std::string file, T value)
 
 void showParseError(char *argv[])
 {
-	std::cerr << "Usage: " << argv[0] << " <option(s)>\n"
+	std::cerr << "EOS.IO cpp client using hello world smart contract.\n"
+			  << "Usage: " << argv[0] << " <option(s)>\n"
 			  << "Options:\n"
 			  << "\t-h,--help\t\tShow this help message\n"
 			  << "\t--push   \t\tBuild transaction AND send it\n"
