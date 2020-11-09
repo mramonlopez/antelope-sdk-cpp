@@ -24,7 +24,7 @@ cd secp256k1/
 ./autogen.sh
 ./configure --enable-module-recovery --without-bignum
 make
-cd ..abieos/src/
+cd ..
 
 ```
 Make cryptopp:
