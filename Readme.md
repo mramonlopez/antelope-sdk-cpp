@@ -108,7 +108,7 @@ It seems the program is to fast for gperftools. You still can get some results w
 CPUPROFILE_REALTIME=1 CPUPROFILE_FREQUENCY=10000000 LD_PRELOAD=/usr/local/lib/libprofiler.so.0.5.0 ./app --push
 
 #Visualize:
-./pprof -kcachegrind /home/luc/cloud/université/master2/stage/EOS/eos-c-client-app/app /home/luc/cloud/université/master2/stage/EOS/eos-c-client-app/profile.txt
+./pprof -kcachegrind ./app ./profile.txt
 
 ```
 
