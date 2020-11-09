@@ -2,7 +2,7 @@
  * @file app.cpp
  * @date 10/2020
  * @author Luc Gerrits <luc.gerrits@univ-cotedazur.fr>
- * @brief Client for helloworld smart contract.
+ * @brief C++ client for helloworld smart contract.
  * @version 0.1
  */
 
