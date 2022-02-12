@@ -1,5 +1,5 @@
 
-CXX = g++-8
+#CXX = g++-8
 libs = -lcurl -L. -L ./abieos/build/ #-lprofiler
 includes = -I . -I secp256k1/includes -I abieos/external/rapidjson/include -I abieos/include/
 #######objects for main prog:
@@ -9,7 +9,7 @@ app_objects += ./abieos/build/libabieos.so
 app_static_lib = ./abieos/build/libabieos.a ./cryptopp/libcryptopp.a secp256k1/.libs/libsecp256k1.a
 #some flags
 flag_global = -O2 -std=c++17  #eosio is on standart c++17  -pg 
-flag_main = -Wall -Werror -Wno-unknown-pragmas -Wno-maybe-uninitialized #-pthread
+flag_main = -Wall -Werror -Wno-unknown-pragmas -Wno-maybe-uninitialized  -Wno-unknown-warning-option -dynamiclib#-pthread
 
 all: app #test
 

@@ -14,15 +14,15 @@
 #include <iostream>
 #include <chrono>
 
-#include "abieos/include/eosio/abi.hpp"
-#include "abieos/include/eosio/crypto.hpp"
-#include "abieos/include/eosio/name.hpp"
-#include "abieos/include/eosio/ship_protocol.hpp"
-#include "abieos/include/eosio/stream.hpp"
-#include "abieos/include/eosio/time.hpp"
-#include "abieos/include/eosio/to_json.hpp"
-#include "abieos/include/eosio/varint.hpp"
-#include "abieos/include/eosio/abieos.h"
+#include <eosio/abi.hpp>
+#include <eosio/crypto.hpp>
+#include <eosio/name.hpp>
+#include <eosio/ship_protocol.hpp>
+#include <eosio/stream.hpp>
+#include <eosio/time.hpp>
+#include <eosio/to_json.hpp>
+#include <eosio/varint.hpp>
+#include <eosio/abieos.h>
 #include "eos_client.h"
 
 // abieos test functions

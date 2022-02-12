@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
-#include "json/single_include/nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 #include "eos_client.h"
