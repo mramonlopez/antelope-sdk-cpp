@@ -46,17 +46,17 @@ using json = nlohmann::json;
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
 //crypto++
-#include <cryptlib.h>
-#include <osrng.h>
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/osrng.h>
 using CryptoPP::AutoSeededRandomPool;
-#include <hex.h>
+#include <cryptopp/hex.h>
 using CryptoPP::HexEncoder;
-#include <sha.h>
+#include <cryptopp/sha.h>
 using CryptoPP::SHA256;
 using CryptoPP::SHA512;
-#include <ripemd.h>
+#include <cryptopp/ripemd.h>
 using CryptoPP::RIPEMD160;
-#include <filters.h>
+#include <cryptopp/filters.h>
 using CryptoPP::Redirector;
 using CryptoPP::StringSink;
 using CryptoPP::StringSource;
