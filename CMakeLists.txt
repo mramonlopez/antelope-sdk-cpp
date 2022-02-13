@@ -8,6 +8,7 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 
 include(cmake/cryptopp.cmake)
 include(cmake/abieos.cmake)
+include(cmake/secp256k1.cmake)
 
 set(SOURCE_FILES 
 	src/app.cpp
@@ -15,25 +16,26 @@ set(SOURCE_FILES
 )
 
 add_executable(${APP_NAME} ${SOURCE_FILES})
-add_dependencies(${APP_NAME} cryptopp abieos)
+add_dependencies(${APP_NAME} cryptopp abieos secp256k1)
 
 ExternalProject_Get_Property(abieos INSTALL_DIR)
-include_directories(
-	${INSTALL_DIR}/include
-)
+set(ABIEOS_INSTALL_DIR ${INSTALL_DIR})
 
 ExternalProject_Get_Property(cryptopp INSTALL_DIR)
-include_directories(
-	${INSTALL_DIR}/include
-)
+set(CRYPTOPP_INSTALL_DIR ${INSTALL_DIR})
+
+ExternalProject_Get_Property(secp256k1 INSTALL_DIR)
+set(SECP256K1_INSTALL_DIR ${INSTALL_DIR})
 
 target_link_libraries(${APP_NAME} PRIVATE 
 	nlohmann_json::nlohmann_json
-	-L${INSTALL_DIR}/lib
+	-L${CRYPTOPP_INSTALL_DIR}/lib
+	-L${SECP256K1_INSTALL_DIR}/lib
 )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
-	# ${CMAKE_CURRENT_SOURCE_DIR}/abieos/external/rapidjson/include
-	${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/include
+	${ABIEOS_INSTALL_DIR}/include
+	${CRYPTOPP_INSTALL_DIR}/include
+	${SECP256K1_INSTALL_DIR}/include
 )
