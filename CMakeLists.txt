@@ -27,10 +27,11 @@ set(CRYPTOPP_INSTALL_DIR ${INSTALL_DIR})
 ExternalProject_Get_Property(secp256k1 INSTALL_DIR)
 set(SECP256K1_INSTALL_DIR ${INSTALL_DIR})
 
-target_link_libraries(${APP_NAME} PRIVATE 
+target_link_libraries(${APP_NAME} PUBLIC 
 	nlohmann_json::nlohmann_json
-	-L${CRYPTOPP_INSTALL_DIR}/lib
-	-L${SECP256K1_INSTALL_DIR}/lib
+	${CRYPTOPP_INSTALL_DIR}/lib/libcryptopp.a
+	${SECP256K1_INSTALL_DIR}/lib/libsecp256k1.a
+	${ABIEOS_INSTALL_DIR}/libabieos.a
 )
 
 include_directories(
