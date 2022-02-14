@@ -43,8 +43,8 @@ void abort(void) __attribute__((__noreturn__));
 using json = nlohmann::json;
 
 //Crypto and hashing stuff:
-#include <secp256k1/secp256k1.h>
-#include <secp256k1/secp256k1_recovery.h>
+#include <secp256k1.h>
+#include <secp256k1_recovery.h>
 //crypto++
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/osrng.h>
