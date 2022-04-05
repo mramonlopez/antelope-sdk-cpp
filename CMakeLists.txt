@@ -12,7 +12,7 @@ include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
 
 set(SOURCE_FILES 
-	src/app.cpp
+	# src/app.cpp
 	src/eos_client.cpp
 )
 
