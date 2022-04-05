@@ -5,8 +5,6 @@ if (NOT Git_FOUND)
 	message(FATAL_ERROR "Git not found!")
 endif ()
 
-find_program(MAKE_EXE NAMES gmake nmake make)
-
 include(ExternalProject)
 
 set (ABIEOS "abieos")

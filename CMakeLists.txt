@@ -4,11 +4,12 @@ set(CMAKE_CXX_STANDARD 17)
 project(eosclient VERSION 0.1 LANGUAGES CXX C)
 set(APP_NAME eosclient)
 
-find_package(nlohmann_json 3.2.0 REQUIRED)
+option(FABRIC_SDK_CPP_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
 
 include(cmake/cryptopp.cmake)
 include(cmake/abieos.cmake)
 include(cmake/secp256k1.cmake)
+include(cmake/nlohman_json.cmake)
 
 set(SOURCE_FILES 
 	src/app.cpp

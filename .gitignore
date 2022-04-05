@@ -6,4 +6,4 @@ specs.json
 *.o
 *.stats
 *.abi
-build/
+*build/
