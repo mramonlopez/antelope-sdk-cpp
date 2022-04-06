@@ -12,11 +12,10 @@ include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
 
 set(SOURCE_FILES 
-	# src/app.cpp
 	src/eos_client.cpp
 )
 
-add_executable(${APP_NAME} ${SOURCE_FILES})
+add_library(${APP_NAME} ${SOURCE_FILES})
 add_dependencies(${APP_NAME} cryptopp abieos secp256k1)
 
 ExternalProject_Get_Property(abieos INSTALL_DIR)
