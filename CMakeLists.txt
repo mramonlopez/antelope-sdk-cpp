@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 17)
 
 project(eosclient VERSION 0.1 LANGUAGES CXX C)
