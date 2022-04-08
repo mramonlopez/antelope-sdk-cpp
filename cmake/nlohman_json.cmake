@@ -1,4 +1,4 @@
-if(FABRIC_SDK_CPP_USE_EXTERNAL_JSON)
+if(EOSCLIENT_USE_EXTERNAL_JSON)
     find_package(nlohmann_json 3.2.0 REQUIRED)
 else()
     include(FetchContent)
