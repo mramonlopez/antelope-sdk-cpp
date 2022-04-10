@@ -22,6 +22,6 @@ ExternalProject_Add(
 	BUILD_ALWAYS      OFF
 	INSTALL_DIR       ${CMAKE_CURRENT_BINARY_DIR}/ext/${CRYPTOPP}
 
-	BUILD_COMMAND     ${MAKE_EXE}
+	BUILD_COMMAND     sh -c "source TestScripts/setenv-ios.sh IOS_SDK=iPhone IOS_CPU=arm64 && ${MAKE_EXE}"
 	INSTALL_COMMAND   ${MAKE_EXE} DESTDIR=${CMAKE_CURRENT_BINARY_DIR}/ext/${CRYPTOPP} PREFIX=/ install
 )

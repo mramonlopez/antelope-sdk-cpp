@@ -5,19 +5,16 @@ if (NOT Git_FOUND)
 	message(FATAL_ERROR "Git not found!")
 endif ()
 
-include(ExternalProject)
+include(FetchContent)
 
-set (ABIEOS "abieos")
-set (ABIEOS_ONLY_LIBRARY on)
+set(BUILD_TESTING 0)
 
-ExternalProject_Add(
-	${ABIEOS}
-	PREFIX          ${ABIEOS}
-	GIT_REPOSITORY 	https://github.com/EOSIO/abieos.git
-	GIT_SUBMODULES_RECURSE true
+FetchContent_Declare(abieos
+	GIT_REPOSITORY https://github.com/EOSIO/abieos.git
+	GIT_TAG master)
 
-	BUILD_IN_SOURCE   true
-	BUILD_ALWAYS      OFF
-	INSTALL_DIR       ${CMAKE_CURRENT_BINARY_DIR}/ext/${ABIEOS}
-	INSTALL_COMMAND   cp -R include external/rapidjson/include libabieos.a libabieos.so ${CMAKE_CURRENT_BINARY_DIR}/ext/${ABIEOS}
-)
+FetchContent_GetProperties(abieos)
+if(NOT abieos_POPULATED)
+	FetchContent_Populate(abieos)
+	add_subdirectory(${abieos_SOURCE_DIR} ${abieos_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
