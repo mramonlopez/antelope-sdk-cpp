@@ -13,13 +13,17 @@ include(cmake/abieos.cmake)
 # include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/secp256k1)
+
 set(SOURCE_FILES 
 	src/app.cpp
 	src/eos_client.cpp
 )
 
 add_library(${LIB_NAME} ${SOURCE_FILES})
-add_dependencies(${LIB_NAME} abieos ext_curl) # cryptopp secp256k1
+add_dependencies(${LIB_NAME} abieos ext_curl secp256k1) # cryptopp secp256k1
+
+# include(ExternalProject)
 
 # ExternalProject_Get_Property(abieos INSTALL_DIR)
 # set(ABIEOS_INSTALL_DIR ${INSTALL_DIR})
@@ -32,6 +36,8 @@ add_dependencies(${LIB_NAME} abieos ext_curl) # cryptopp secp256k1
 
 target_link_libraries(${LIB_NAME} PUBLIC 
 	nlohmann_json::nlohmann_json
+	abieos
+	secp256k1
 	# ${CRYPTOPP_INSTALL_DIR}/lib/libcryptopp.a
 	# ${SECP256K1_INSTALL_DIR}/lib/libsecp256k1.a
 	# ${ABIEOS_INSTALL_DIR}/libabieos.a
@@ -41,6 +47,6 @@ target_include_directories(${LIB_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${abieos_SOURCE_DIR}/include
 	# ${CRYPTOPP_INSTALL_DIR}/include
-	# ${SECP256K1_INSTALL_DIR}/include
+	${secp256k1_SOURCE_DIR}/include
 	${CURL_INCLUDE_DIR}
 )

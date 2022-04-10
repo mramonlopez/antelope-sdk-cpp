@@ -5,23 +5,16 @@ if (NOT Git_FOUND)
 	message(FATAL_ERROR "Git not found!")
 endif ()
 
-include(ExternalProject)
-find_program(MAKE_EXE NAMES gmake nmake make)
+include(FetchContent)
 
-set (SECP256K1 "secp256k1")
-ExternalProject_Add(
-	${SECP256K1}
-	PREFIX            ${SECP256K1}
-	GIT_REPOSITORY    https://github.com/bitcoin-core/secp256k1.git
+set(BUILD_TESTING 0)
 
-	CONFIGURE_COMMAND sh -c "./autogen.sh && ./configure --enable-module-recovery"
-	UPDATE_COMMAND    ""
-	INSTALL_COMMAND   ""
+FetchContent_Declare(secp256k1
+	GIT_REPOSITORY https://github.com/mramonlopez/secp256k1/
+	GIT_TAG master)
 
-	BUILD_IN_SOURCE   true
-	BUILD_ALWAYS      OFF
-	INSTALL_DIR       ${CMAKE_CURRENT_BINARY_DIR}/ext/${SECP256K1}
-
-	BUILD_COMMAND     ${MAKE_EXE}
-	INSTALL_COMMAND   ${MAKE_EXE} DESTDIR=${CMAKE_CURRENT_BINARY_DIR}/ext/${SECP256K1} exec_prefix=/ prefix=/ install
-)
+FetchContent_GetProperties(secp256k1)
+if(NOT secp256k1_POPULATED)
+	FetchContent_Populate(secp256k1)
+	add_subdirectory(${secp256k1_SOURCE_DIR} ${secp256k1_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
