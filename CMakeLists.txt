@@ -6,9 +6,9 @@ set(LIB_NAME eosclient)
 
 option(EOSCLIENT_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
 
-find_package(curl REQUIRED "7.64.1")
+find_package(curl REQUIRED)
 
-# include(cmake/cryptopp.cmake)
+include(cmake/cryptopp.cmake)
 include(cmake/abieos.cmake)
 # include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
@@ -20,33 +20,27 @@ set(SOURCE_FILES
 	src/eos_client.cpp
 )
 
-add_library(${LIB_NAME} ${SOURCE_FILES})
-add_dependencies(${LIB_NAME} abieos ext_curl secp256k1) # cryptopp secp256k1
+set(HEADER_FILES 
+	include/eos_client.h
+)
 
-# include(ExternalProject)
+source_group(src FILES ${SOURCE_FILES})
+source_group(include FILES ${HEADER_FILES})
 
-# ExternalProject_Get_Property(abieos INSTALL_DIR)
-# set(ABIEOS_INSTALL_DIR ${INSTALL_DIR})
-
-# ExternalProject_Get_Property(cryptopp INSTALL_DIR)
-# set(CRYPTOPP_INSTALL_DIR ${INSTALL_DIR})
-
-# ExternalProject_Get_Property(secp256k1 INSTALL_DIR)
-# set(SECP256K1_INSTALL_DIR ${INSTALL_DIR})
+add_library(${LIB_NAME} ${SOURCE_FILES} ${HEADER_FILES})
+add_dependencies(${LIB_NAME} abieos ext_curl secp256k1 cryptopp)
 
 target_link_libraries(${LIB_NAME} PUBLIC 
 	nlohmann_json::nlohmann_json
 	abieos
 	secp256k1
-	# ${CRYPTOPP_INSTALL_DIR}/lib/libcryptopp.a
-	# ${SECP256K1_INSTALL_DIR}/lib/libsecp256k1.a
-	# ${ABIEOS_INSTALL_DIR}/libabieos.a
+	cryptopp
 )
 
 target_include_directories(${LIB_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${abieos_SOURCE_DIR}/include
-	# ${CRYPTOPP_INSTALL_DIR}/include
+	${cryptopp_SOURCE_DIR}/include
 	${secp256k1_SOURCE_DIR}/include
 	${CURL_INCLUDE_DIR}
 )
