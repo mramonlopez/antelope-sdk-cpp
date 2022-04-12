@@ -8,7 +8,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "eos_client.h"
+#include <eosclient/eos_client.h>
 
 /*Start sendata functions*/
 struct WriteThis
@@ -112,7 +112,11 @@ int sendData(std::string data, std::string api_endpoint, std::string &response, 
 */
 std::string getEOSChainEndpoint()
 {
+#ifdef EOS_ENDPOINT_CHAIN_PORT
     return std::string(EOS_ENDPOINT) + ":" + std::to_string(EOS_ENDPOINT_CHAIN_PORT) + std::string(EOS_ENDPOINT_CHAIN_VERSION);
+#else
+    return std::string(EOS_ENDPOINT) + std::string(EOS_ENDPOINT_CHAIN_VERSION);
+#endif
 }
 
 /**

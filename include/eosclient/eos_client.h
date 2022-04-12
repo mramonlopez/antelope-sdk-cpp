@@ -23,12 +23,12 @@ void abort(void) __attribute__((__noreturn__));
         fprintf(stdout, "%s:%d: %s\n", __FILE__, __LINE__, msg); \
     } while (0)
 
-#define EOS_ENDPOINT "http://localhost"
+#define EOS_ENDPOINT "http://testnet.waxsweden.org"
 // #define EOS_ENDPOINT "http://chrisserverfr.ddns.net"
-#define EOS_ENDPOINT_CHAIN_PORT 8888
+#define __EOS_ENDPOINT_CHAIN_PORT 8888
 #define EOS_ENDPOINT_CHAIN_VERSION "/v1/chain"
-#define EOS_SMART_CONTRACT_ACCOUNT_NAME "helloworld"
-#define EOS_SMART_CONTRACT_ACTION "hi"
+#define EOS_SMART_CONTRACT_ACCOUNT_NAME "siegeofmytra"
+#define EOS_SMART_CONTRACT_ACTION "getprod"
 #define CACHE_ABI_SMART_CONTRACT 1
 #define CACHE_ABI_SMART_CONTRACT_FILENAME ".cache.abi"
 #define HASH_SHA256_SIZE 32

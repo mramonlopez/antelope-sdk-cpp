@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <chrono>
+#include <stdio.h>
 
 #include <eosio/abi.hpp>
 #include <eosio/crypto.hpp>
@@ -23,7 +24,7 @@
 #include <eosio/to_json.hpp>
 #include <eosio/varint.hpp>
 #include <eosio/abieos.h>
-#include "eos_client.h"
+#include <eosclient/eos_client.h>
 
 // abieos test functions
 template <typename T>
@@ -37,7 +38,7 @@ T check(T value, const char *msg = "")
 template <typename T>
 T check_context(abieos_context *context, int line, std::string file, T value)
 {
-	if (!value)
+    if (!value)
 	{
 		std::cout << "Error at: ./" << file << ":" << line << std::endl;
 		throw std::runtime_error(abieos_get_error(context));
@@ -54,31 +55,7 @@ void showParseError(char *argv[])
 			  << "\t--push   \t\tBuild transaction AND send it\n"
 			  << "\t--dry-run\t\tBuild transaction BUT don't send it" << std::endl;
 }
-int parseArgs(int argc, char *argv[], std::string &command)
-{
-	if (argc < 2)
-	{
-		showParseError(argv);
-		return 1;
-	}
-	else
-	{
-		if (strcmp(argv[1], "--push") == 0)
-		{
-			command = "push";
-		}
-		else if (strcmp(argv[1], "--dry-run") == 0)
-		{
-			command = "dry-run";
-		}
-		else
-		{
-			showParseError(argv);
-			return 1;
-		}
-		return 0;
-	}
-}
+
 /**
  * This is the bitcoin base58check
  */
@@ -111,52 +88,50 @@ bool is_canonical(unsigned char *signature)
 void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json &tnx_json,
 					  SECP256K1_API::secp256k1_context *&ctx)
 {
-	//init some variables:
-
-	// std::string priv_key = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"; //WTF: wrong format -> is in WIF format
-	//Use: https://learnmeabitcoin.com/technical/wif
 	HexStrToUchar(priv_key_bytes, priv_key.c_str(), HASH_SHA256_SIZE);
 	ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 	// init final tnx with example of json:
-	CHECK(parseJSON(R"(
+	parseJSON(R"(
 		{
 			"actions": [
 				{
-					"account":"helloworld",
+					"account":"<REPLACED>",
+                    "name":"<REPLACED>",
 					"authorization":[
 						{
-							"actor":"helloworld",
+							"actor":"<REPLACED>",
 							"permission":"active"
 						}
 					],
-					"data":"00408A97721AA36A06486579797979",
-					"name":"hi"
+					"data": {
+                        "player": "starshipsven"
+                    }
 				}
 			],
-			"context_free_actions":[],
-			"context_free_data":[],
-			"delay_sec":0,
-			"expiration":"2020-06-02T20:24:36",
-			"max_cpu_usage_ms":0,
-			"max_net_usage_words":0,
-			"ref_block_num":14207,
-			"ref_block_prefix":1438248607,
-			"transaction_extensions":[]
+             "context_free_actions":[],
+             "context_free_data":[],
+             "delay_sec":0,
+             "expiration":"2020-06-02T20:24:36",
+             "max_cpu_usage_ms":0,
+             "max_net_usage_words":0,
+             "ref_block_num":14207,
+             "ref_block_prefix":1438248607,
+             "transaction_extensions":[]
 		}
-	)",
-					tnx_json) == 1);
+	)", tnx_json);
+    
 
 	// Set the initial tnx values:
 	tnx_json["actions"][0]["account"] = EOS_SMART_CONTRACT_ACCOUNT_NAME;
-	tnx_json["actions"][0]["authorization"][0]["actor"] = EOS_SMART_CONTRACT_ACCOUNT_NAME;
-	tnx_json["actions"][0]["name"] = EOS_SMART_CONTRACT_ACTION;
+    tnx_json["actions"][0]["name"] = EOS_SMART_CONTRACT_ACTION;
+	tnx_json["actions"][0]["authorization"][0]["actor"] = "starshipsven";
 }
 void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx)
 {
 	abieos_destroy(context);
 	SECP256K1_API::secp256k1_context_destroy(ctx);
 }
-void get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
+uint64_t get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
 {
 	// first get EOS node info
 	std::string response;
@@ -171,7 +146,7 @@ void get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_i
 			exit(1);
 		}
 		std::cout << "Endpoint OK : " << getEOSChainEndpoint() << std::endl;
-		// std::cout << response_json.dump(1) << std::endl;
+        std::cout << response_json.dump(1) << std::endl;
 	}
 	else
 	{
@@ -181,35 +156,39 @@ void get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_i
 	chain_id = response_json["chain_id"]; // not used for the moment
 	HexStrToUchar(chain_id_bytes, chain_id.c_str(), 32);
 
-	std::uint64_t ref_block_num = response_json["last_irreversible_block_num"].get<std::uint64_t>();
-	tnx_json["ref_block_num"] = (std::uint16_t)(ref_block_num & ((std::uint16_t)0xFFFFFFFF));
+	std::uint64_t last_irreversible_block_num = response_json["last_irreversible_block_num"].get<std::uint64_t>();
+   
+    tnx_json["ref_block_num"] = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
+    
+    return last_irreversible_block_num;
 }
-void get_last_block_info(json &tnx_json)
+void get_last_block_info(json &tnx_json, uint64_t last_irreversible_block_num)
 {
 	// next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
 	std::string response;
 	json response_json;
-	CHECK(sendData("{\"block_num_or_id\":\"" + std::to_string(tnx_json["ref_block_num"].get<std::uint64_t>()) +
+	CHECK(sendData("{\"block_num_or_id\":\"" + std::to_string(last_irreversible_block_num) +
 					   "\"}",
 				   getEOSChainEndpoint() + "/get_block", response, CURL_IS_VERBOSE) == 1);
 	CHECK(parseJSON(response, response_json) == 1);
-	// std::cout << response_json.dump(1) << std::endl;
+    std::cout << response_json.dump(1) << std::endl;
 
 	std::uint32_t ref_block_prefix = response_json["ref_block_prefix"].get<std::uint32_t>();
 	tnx_json["ref_block_prefix"] = ref_block_prefix;
-	tnx_json["expiration"] = response_json["timestamp"].get<std::string>();
-	// increase expiration by one minute:
-	std::string tmp_exp = tnx_json["expiration"];
-	int new_minute_1 = (int)tmp_exp[15] + 2;
-	// TODO: Test minute integer > 9 -> else increase hours
-	if (new_minute_1 > (int)'9')
-	{
-		new_minute_1 = (int)'0';
-		int new_minute_2 = (int)tmp_exp[14] + 2;
-		tmp_exp[14] = (char)new_minute_2;
-	}
-	tmp_exp[15] = (char)new_minute_1;
-	tnx_json["expiration"] = tmp_exp;
+//	tnx_json["expiration"] = response_json["timestamp"].get<std::string>();
+//	// increase expiration by one minute:
+//	std::string tmp_exp = tnx_json["expiration"];
+//	int new_minute_1 = (int)tmp_exp[15] + 2;
+//	// TODO: Test minute integer > 9 -> else increase hours
+//	if (new_minute_1 > (int)'9')
+//	{
+//		new_minute_1 = (int)'0';
+//		int new_minute_2 = (int)tmp_exp[14] + 2;
+//		tmp_exp[14] = (char)new_minute_2;
+//	}
+//	tmp_exp[15] = (char)new_minute_1;
+//	tnx_json["expiration"] = tmp_exp;
+    tnx_json["expiration"] = "2022-04-14T07:50:00.000"; // TODO: current ZULU time + x seconds
 }
 void get_transaction_smart_contract_abi(std::string &smart_contract_abi)
 {
@@ -240,33 +219,157 @@ void get_init_data(json &tnx_json, std::string &chain_id, unsigned char *chain_i
 				   std::string &smart_contract_abi)
 {
 	DEBUG("Retrieving node data");
-	get_node_info(tnx_json, chain_id, chain_id_bytes);
-	get_last_block_info(tnx_json);
+	auto last_irreversible_block_num = get_node_info(tnx_json, chain_id, chain_id_bytes);
+	get_last_block_info(tnx_json, last_irreversible_block_num);
 	get_transaction_smart_contract_abi(smart_contract_abi);
 	DEBUG("Done");
 }
+
 void build_transaction_action_binary(abieos_context *context, json &tnx_json, std::string smart_contract_abi)
 {
 	DEBUG("Building action data binary");
-	uint64_t helloworld = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "helloworld"));
-	check_context(context, __LINE__, __FILE__, abieos_set_abi(context, helloworld, smart_contract_abi.c_str()));
+    uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, EOS_SMART_CONTRACT_ACCOUNT_NAME));
+	check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, smart_contract_abi.c_str()));
 	check_context(context, __LINE__, __FILE__,
-				  abieos_json_to_bin_reorderable(context, helloworld, "hi",
-												 "{\"message\":\"Heyyyy\",\"from\":\"helloworld\"}"));
+				  abieos_json_to_bin_reorderable(context, contract, EOS_SMART_CONTRACT_ACTION,
+												 "{\"player\":\"starshipsven\"}"));
 	tnx_json["actions"][0]["data"] = check_context(context, __LINE__, __FILE__, abieos_get_bin_hex(context));
 	DEBUG("Done");
 }
+
 void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &transaction_contract, char *&packed_tnx,
 							  int &packed_tnx_size)
 {
 	// load tnx into the abi json->bin:
 	DEBUG("Building packed transaction");
-	std::ifstream infile(
-		"transaction.abi.json"); //abieos uses the transaction contract to build the packed transaction
-	//Note:
-	//A (smart) contract will have to same steps when building the contract action binary (it is based on the contract abi json)
-	std::string transactionAbi_str =
-		std::string((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+//	std::ifstream infile(
+//		"transaction.abi.json"); //abieos uses the transaction contract to build the packed transaction
+//	//Note:
+//	//A (smart) contract will have to same steps when building the contract action binary (it is based on the contract abi json)
+//	std::string transactionAbi_str =
+//		std::string((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    
+    std::string transactionAbi_str = R"(
+    {
+        "version": "eosio::abi/1.0",
+        "types": [
+            {
+                "new_type_name": "account_name",
+                "type": "name"
+            },
+            {
+                "new_type_name": "action_name",
+                "type": "name"
+            },
+            {
+                "new_type_name": "permission_name",
+                "type": "name"
+            }
+        ],
+        "structs": [
+            {
+                "name": "permission_level",
+                "base": "",
+                "fields": [
+                    {
+                        "name": "actor",
+                        "type": "account_name"
+                    },
+                    {
+                        "name": "permission",
+                        "type": "permission_name"
+                    }
+                ]
+            },
+            {
+                "name": "action",
+                "base": "",
+                "fields": [
+                    {
+                        "name": "account",
+                        "type": "account_name"
+                    },
+                    {
+                        "name": "name",
+                        "type": "action_name"
+                    },
+                    {
+                        "name": "authorization",
+                        "type": "permission_level[]"
+                    },
+                    {
+                        "name": "data",
+                        "type": "bytes"
+                    }
+                ]
+            },
+            {
+                "name": "extension",
+                "base": "",
+                "fields": [
+                    {
+                        "name": "type",
+                        "type": "uint16"
+                    },
+                    {
+                        "name": "data",
+                        "type": "bytes"
+                    }
+                ]
+            },
+            {
+                "name": "transaction_header",
+                "base": "",
+                "fields": [
+                    {
+                        "name": "expiration",
+                        "type": "time_point_sec"
+                    },
+                    {
+                        "name": "ref_block_num",
+                        "type": "uint16"
+                    },
+                    {
+                        "name": "ref_block_prefix",
+                        "type": "uint32"
+                    },
+                    {
+                        "name": "max_net_usage_words",
+                        "type": "varuint32"
+                    },
+                    {
+                        "name": "max_cpu_usage_ms",
+                        "type": "uint8"
+                    },
+                    {
+                        "name": "delay_sec",
+                        "type": "varuint32"
+                    }
+                ]
+            },
+            {
+                "name": "transaction",
+                "base": "transaction_header",
+                "fields": [
+                    {
+                        "name": "context_free_actions",
+                        "type": "action[]"
+                    },
+                    {
+                        "name": "actions",
+                        "type": "action[]"
+                    },
+                    {
+                        "name": "transaction_extensions",
+                        "type": "extension[]"
+                    }
+                ]
+            }
+        ]
+    }
+    )";
+    
+    
 	transaction_contract =
 		check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
 	check_context(context, __LINE__, __FILE__,
@@ -364,60 +467,58 @@ void build_transaction(abieos_context *context, json &tnx_json, std::string smar
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
 	build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
 }
-void send_transaction(std::string command, json &tnx_json, abieos_context *context, uint64_t transaction_contract,
+void send_transaction(json &tnx_json, abieos_context *context, uint64_t transaction_contract,
 					  std::string eos_signature_str)
 {
 	// send the transaction
 	DEBUG("Sending transaction");
-	if (command == "push")
-	{
-		std::string response;
-		json response_json;
-		// pack  transaction with signature before push
-		check_context(context, __LINE__, __FILE__,
-					  abieos_json_to_bin_reorderable(context, transaction_contract, "transaction",
-													 tnx_json.dump().c_str()));
-		const char *signed_packed_tnx =
-			check_context(context, __LINE__, __FILE__,
-						  abieos_get_bin_data(context)); // use abieos_get_bin_hex for hex
-		int signed_packed_tnx_size = abieos_get_bin_size(context);
-		std::vector<unsigned char> packed_tnx_vec_2(signed_packed_tnx,
-													signed_packed_tnx + signed_packed_tnx_size);
-		std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
-		std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
 
-		CHECK(sendData("{\"signatures\":[\"" + eos_signature_str +
-						   "\"], \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
-						   packed_tnx_2_hex + "\"}",
-					   getEOSChainEndpoint() + "/push_transaction", response, CURL_IS_VERBOSE) == 1);
-		CHECK(parseJSON(response, response_json) == 1);
-		DEBUG("Done");
-		if (response_json["transaction_id"].is_null())
-		{
-			std::cout << "transaction_id: " << response_json.dump(1) << std::endl;
-		}
-		else
-		{
-			std::cout << "transaction_id: " << response_json["transaction_id"].dump() << std::endl;
-		}
-	}
-	else
-	{
-		std::cout << "Mode: " << command << std::endl;
-	}
+    DEBUG(tnx_json.dump().c_str());
+    std::string response;
+    json response_json;
+    // pack  transaction with signature before push
+    check_context(context, __LINE__, __FILE__,
+                  abieos_json_to_bin_reorderable(context, transaction_contract, "transaction",
+                                                 tnx_json.dump().c_str()));
+    const char *signed_packed_tnx =
+        check_context(context, __LINE__, __FILE__,
+                      abieos_get_bin_data(context)); // use abieos_get_bin_hex for hex
+    int signed_packed_tnx_size = abieos_get_bin_size(context);
+    std::vector<unsigned char> packed_tnx_vec_2(signed_packed_tnx,
+                                                signed_packed_tnx + signed_packed_tnx_size);
+    std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
+    std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
+
+    CHECK(sendData("{\"signatures\":[\"" + eos_signature_str +
+                       "\"], \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
+                       packed_tnx_2_hex + "\"}",
+                   getEOSChainEndpoint() + "/push_transaction", response, CURL_IS_VERBOSE) == 1);
+    CHECK(parseJSON(response, response_json) == 1);
+    DEBUG("Done");
+    if (response_json["transaction_id"].is_null())
+    {
+        std::cout << "transaction_id: " << response_json.dump(1) << std::endl;
+    }
+    else
+    {
+        std::cout << "transaction_id: " << response_json["transaction_id"].dump() << std::endl;
+    }
 }
-int main(int argc, char *argv[])
+
+// 1) go to https://learnmeabitcoin.com/technical/wif
+// 2) paste private key in "WIF" text box
+// 3) copy "Private Key text box content
+// 4) paste in next line:
+int test_transaction(std::string priv_key)
 {
 	// ProfilerStart("profile.txt");
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	std::chrono::steady_clock::time_point end;
-	std::string command = "";
-	if (int exit = parseArgs(argc, argv, command))
-		return exit;
 
 	// global variables:
 	json tnx_json; // final json of the tnx that will be sended
-	std::string priv_key = "d2653ff7cbb2d8ff129ac27ef5781ce68b2558c41a74af1f2ddca635cbeef07d";
+    
+
 	unsigned char priv_key_bytes[32];
 	SECP256K1_API::secp256k1_context *ctx;
 	init_transaction(priv_key, priv_key_bytes, tnx_json, ctx);
@@ -469,7 +570,7 @@ int main(int argc, char *argv[])
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
 			  << "[µs]" << std::endl;
 	begin = std::chrono::steady_clock::now();
-	send_transaction(command, tnx_json, context, transaction_contract,
+	send_transaction(tnx_json, context, transaction_contract,
 					 tnx_json["signatures"][0].get<std::string>());
 	end = std::chrono::steady_clock::now();
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
