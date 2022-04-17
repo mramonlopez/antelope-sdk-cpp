@@ -8,7 +8,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include <eosclient/eos_client.h>
+#include <eosclient/eoscli-func.h>
 
 /*Start sendata functions*/
 struct WriteThis

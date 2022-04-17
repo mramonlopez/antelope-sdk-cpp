@@ -5,10 +5,10 @@
 //  Created by Manuel Ramon Lopez Torres on 11/4/22.
 //
 
-#ifndef app_h
-#define app_h
+#ifndef eosclinet_h
+#define eosclinet_h
 
-#include <eosclient/eos_client.h>
+#include <eosclient/eosclient_func.h>
 #include <eosio/abieos.h>
 /**
  * @file app.cpp
@@ -17,7 +17,6 @@
  * @brief C++ client for helloworld smart contract.
  * @version 0.1
  */
-
 
 // abieos test functions
 template <typename T>
@@ -39,7 +38,6 @@ T check_context(abieos_context *context, int line, std::string file, T value)
     return value;
 }
 
-void showParseError(char *argv[]);
 std::string base58check(std::string data);
 bool is_canonical(unsigned char *signature);
 void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json &tnx_json,
@@ -65,4 +63,4 @@ void send_transaction(json &tnx_json, abieos_context *context, uint64_t transact
 int test_transaction(std::string priv_key);
 
 
-#endif /* app_h */
+#endif /* eosclinet_h */

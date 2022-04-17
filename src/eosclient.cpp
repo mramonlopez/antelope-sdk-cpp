@@ -24,7 +24,7 @@
 #include <eosio/to_json.hpp>
 #include <eosio/varint.hpp>
 #include <eosio/abieos.h>
-#include <eosclient/eos_client.h>
+#include <eosclient/eoscli_func.h>
 
 // abieos test functions
 template <typename T>
@@ -44,16 +44,6 @@ T check_context(abieos_context *context, int line, std::string file, T value)
 		throw std::runtime_error(abieos_get_error(context));
 	}
 	return value;
-}
-
-void showParseError(char *argv[])
-{
-	std::cerr << "EOS.IO cpp client using hello world smart contract.\n"
-			  << "Usage: " << argv[0] << " <option(s)>\n"
-			  << "Options:\n"
-			  << "\t-h,--help\t\tShow this help message\n"
-			  << "\t--push   \t\tBuild transaction AND send it\n"
-			  << "\t--dry-run\t\tBuild transaction BUT don't send it" << std::endl;
 }
 
 /**
@@ -126,11 +116,13 @@ void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json 
     tnx_json["actions"][0]["name"] = EOS_SMART_CONTRACT_ACTION;
 	tnx_json["actions"][0]["authorization"][0]["actor"] = "starshipsven";
 }
+
 void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx)
 {
 	abieos_destroy(context);
 	SECP256K1_API::secp256k1_context_destroy(ctx);
 }
+
 uint64_t get_node_info(json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
 {
 	// first get EOS node info

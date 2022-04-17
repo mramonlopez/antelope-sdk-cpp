@@ -17,16 +17,14 @@ include(cmake/abieos.cmake)
 include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
 
-# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/secp256k1)
-
 set(SOURCE_FILES 
-	src/app.cpp
-	src/eos_client.cpp
+	src/eosclient.cpp
+	src/eosclient_func.cpp
 )
 
 set(HEADER_FILES
-    include/eosclient/app.h
-	include/eosclient/eos_client.h
+    include/eosclient/eosclient.h
+	include/eosclient/eosclient_func.h
 )
 
 source_group(src FILES ${SOURCE_FILES})
