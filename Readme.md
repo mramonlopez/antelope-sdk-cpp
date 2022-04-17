@@ -1,134 +1,17 @@
-# EOS C++ Client Application
+# EOS C++ Client Library
+This project is a fork of https://github.com/lucgerrits/EOS.IO-cpp-client created with the aim of using this EOS.io client as a library using cmake in other projects and on mobile platforms.
 
-This program aims to demonstrate that it is possible to run a client application in C++ for EOS.IO blockchain.
-
-I profile this program to have an overview of the most required functions used in an EOS.IO client application.
-
-Please make an issue for questions or errors.
-
-## Important
-
-Pull submodules !
-```
-git submodule update --init --recursive
-```
-
-## Requirements: 
-
-Run the `setup.sh` or follow the next commands to build required libs.
-
-Make Secp256k1:
-```bash
-
-cd secp256k1/
-./autogen.sh
-./configure --enable-module-recovery --without-bignum
-make
-cd ..
+The project downloads all the repositories it needs through FetchContent, except for the curl library. This library must be provided externally, indicating its name in the **EOSCLIENT_CURL_NAME** variable. For example, in a cocos2d-x project, which already includes curl precompiles, we can include something like this in the main CMakeLists.txt file:
 
 ```
-Make cryptopp:
-```bash
+include(${COCOS2DX_ROOT_PATH}/external/cmake/CocosExternalConfig.cmake)
 
-cd cryptopp/
-make
-cd ..
+set(EOSCLIENT_CURL_NAME "ext_curl")
+set(CURL_INCLUDE_DIR ${COCOS2DX_ROOT_PATH}/external/curl/include/${platform_name})
+set(CURL_LIBRARY ${COCOS2DX_ROOT_PATH}/external/curl/${platform_spec_path})
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/EOS.IO-cpp-client EXCLUDE_FROM_ALL)
+add_dependencies(${APP_NAME} ${EOSCLIENT})
 ```
 
-**For abieos**: use gcc-8 and g++-8 !
-
-**Before anything** follow fix: https://github.com/EOSIO/abieos/issues/88
-
-Make abieos:
-```bash
-
-cd abieos/
-git submodule update --init --recursive
-mkdir build && cd build
-cmake -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8 ..
-make
-cd ..
-
-```
-
-
-## Make the app
-
-To build the app just:
-
-```
-make
-./app 
-```
-
-
-## Steps to send a transaction
-
-Here is a simple description of the steps inside the program.
-
-From the eojs lib & source code of cleos, a transaction require to send these RPC requests and these steps:
-
-- [x] get_info
-- [x] get_block
-- [x] get_raw_code_and_abi -> now its just get abi
-- [x] get_required_keys -> useless for us here
-- [x] build (using abieos) & sign transaction (secp256k1)
-- [x] push_transaction
-
-*Checked items are currently done.
-
-![requests image](./doc/js_requests.png "icon")
-
-
-## Profiling
-
-### With Valgrind/Callgrind
-
-**Note**: Compile without -pg . Also make sure to REMOVE *gperftools* include with `ProfilerStart` and `ProfilerStop`.
-
-```
-#Run the program:
-valgrind --tool=callgrind ./app --push
-
-#Visualize:
-kcachegrind <previous file output>
-```
-
-![profiling image](./profiling/push_tnx_pretty.png "icon")
-
-### with gperftools/pperf
-
-**Note**: Compile without -pg . Also make sure to ADD *gperftools* include with `ProfilerStart` and `ProfilerStop`.
-
-It seems the program is to fast for gperftools. You still can get some results with `CPUPROFILE_REALTIME=1` .
-
-```
-#Run the program:
-CPUPROFILE_REALTIME=1 CPUPROFILE_FREQUENCY=10000000 LD_PRELOAD=/usr/local/lib/libprofiler.so.0.5.0 ./app --push
-
-#Visualize:
-./pprof -kcachegrind ./app ./profile.txt
-
-```
-
-**Note**: to install gperftools/pperf:
-```
-#For gperftools:
-git clone https://github.com/gperftools/gperftools.git
-./autorun.sh
-./configure
-make
-sudo make install
-
-#For pperf:
-go get -u github.com/google/pprof
-#Or:
-git clone https://github.com/google/pprof.git
-cd pprof && go build
-```
-
-
-## Acknowledgement
-
-This work has been supported by the French government, through the U CA JEDI and EUR DS4H Investments in the Future projects managed by the National Research Agency (ANR) with the reference number ANR-15-IDEX-0001 and ANR-17-EURE-0004.
+Instructions on how to build the project with make, as well as how to profile it, can be found in the original project.
