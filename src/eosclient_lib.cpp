@@ -93,19 +93,17 @@ void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json 
 							"permission":"active"
 						}
 					],
-					"data": {
-                        "player": "starshipsven"
-                    }
+					"data": "<REPLACED>"
 				}
 			],
              "context_free_actions":[],
              "context_free_data":[],
              "delay_sec":0,
-             "expiration":"2020-06-02T20:24:36",
+             "expiration":"<REPLACED>",
              "max_cpu_usage_ms":0,
              "max_net_usage_words":0,
-             "ref_block_num":14207,
-             "ref_block_prefix":1438248607,
+             "ref_block_num":0,
+             "ref_block_prefix":0,
              "transaction_extensions":[]
 		}
 	)", tnx_json);
