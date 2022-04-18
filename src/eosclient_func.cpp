@@ -8,7 +8,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include <eosclient/eos_client.h>
+#include <eosclient/eosclient_func.h>
 
 /*Start sendata functions*/
 struct WriteThis
@@ -108,18 +108,6 @@ int sendData(std::string data, std::string api_endpoint, std::string &response, 
 /*Util functions*/
 
 /**
- *   @return string, eos chain endpoint, ex: http://127.0.0.1:8888/v1/chain
-*/
-std::string getEOSChainEndpoint()
-{
-#ifdef EOS_ENDPOINT_CHAIN_PORT
-    return std::string(EOS_ENDPOINT) + ":" + std::to_string(EOS_ENDPOINT_CHAIN_PORT) + std::string(EOS_ENDPOINT_CHAIN_VERSION);
-#else
-    return std::string(EOS_ENDPOINT) + std::string(EOS_ENDPOINT_CHAIN_VERSION);
-#endif
-}
-
-/**
  * Parse a string into a JSON object
  *   @return 1 if success, else 0
 */
@@ -137,8 +125,6 @@ int parseJSON(std::string json_str, json &j)
         return 0;
     }
 }
-/*Start define EOS chain endpoints functions*/
-//TODO
 
 /**
  * Convert bytes to hex
