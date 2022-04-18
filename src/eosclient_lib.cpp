@@ -14,6 +14,7 @@
 #include <iostream>
 #include <chrono>
 #include <stdio.h>
+#include <ctime>
 
 #include <eosio/abi.hpp>
 #include <eosio/crypto.hpp>
@@ -144,8 +145,35 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
    
     tnx_json["ref_block_num"] = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
     
+    std::string tmp_exp = response_json["head_block_time"].get<std::string>();
+    // increase expiration by one minute:
+    
+    int year, month, day, hour, minute, second, tail = 0;
+    
+    check(7 == sscanf(tmp_exp.c_str(), "%d-%d-%dT%d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &tail));
+    
+    tm t;
+    
+    t.tm_year = year - 1900;
+    t.tm_mon = month - 1;
+    t.tm_mday = day;
+    t.tm_hour = hour;
+    t.tm_min = minute;
+    t.tm_sec = second;
+    
+    time_t t2 = mktime(&t);
+    t2 += 300; // TODO: make configurable
+    
+    auto t3 = localtime(&t2);
+    
+    char buffer [80];
+    strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.500", t3);
+
+    tnx_json["expiration"] = std::string(buffer);
+        
     return last_irreversible_block_num;
 }
+
 void get_last_block_info(std::string api_url, json &tnx_json, uint64_t last_irreversible_block_num)
 {
 	// next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
@@ -159,20 +187,6 @@ void get_last_block_info(std::string api_url, json &tnx_json, uint64_t last_irre
 
 	std::uint32_t ref_block_prefix = response_json["ref_block_prefix"].get<std::uint32_t>();
 	tnx_json["ref_block_prefix"] = ref_block_prefix;
-//	tnx_json["expiration"] = response_json["timestamp"].get<std::string>();
-//	// increase expiration by one minute:
-//	std::string tmp_exp = tnx_json["expiration"];
-//	int new_minute_1 = (int)tmp_exp[15] + 2;
-//	// TODO: Test minute integer > 9 -> else increase hours
-//	if (new_minute_1 > (int)'9')
-//	{
-//		new_minute_1 = (int)'0';
-//		int new_minute_2 = (int)tmp_exp[14] + 2;
-//		tmp_exp[14] = (char)new_minute_2;
-//	}
-//	tmp_exp[15] = (char)new_minute_1;
-//	tnx_json["expiration"] = tmp_exp;
-    tnx_json["expiration"] = "2022-04-14T07:50:00.000"; // TODO: current ZULU time + x seconds
 }
 
 void get_transaction_smart_contract_abi(std::string api_url, std::string contact_name, std::string &smart_contract_abi)

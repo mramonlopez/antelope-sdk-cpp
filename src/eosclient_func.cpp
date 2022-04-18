@@ -125,8 +125,6 @@ int parseJSON(std::string json_str, json &j)
         return 0;
     }
 }
-/*Start define EOS chain endpoints functions*/
-//TODO
 
 /**
  * Convert bytes to hex
