@@ -20,11 +20,13 @@ include(cmake/nlohman_json.cmake)
 set(SOURCE_FILES 
 	src/eosclient.cpp
 	src/eosclient_func.cpp
+	src/eosclient_lib.cpp
 )
 
 set(HEADER_FILES
-    include/eosclient/eosclient.h
+    include/eosclient/eosclient.hpp
 	include/eosclient/eosclient_func.h
+	include/eosclient/eosclient_lib.h
 )
 
 source_group(src FILES ${SOURCE_FILES})
