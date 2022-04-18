@@ -23,7 +23,7 @@ void EOSClient::action(std::string contract_name, std::string action, nlohmann::
     // Set the initial tnx values:
     tnx_json["actions"][0]["account"] = contract_name;
     tnx_json["actions"][0]["name"] = action;
-    tnx_json["actions"][0]["authorization"][0]["actor"] = "starshipsven";
+    tnx_json["actions"][0]["authorization"][0]["actor"] = account_;
 
     // get raw code and smart contact abi
     // CHECK(sendData("{\"code\":\"" + std::string(EOS_SMART_CONTRACT_ACCOUNT_NAME) + "\",
