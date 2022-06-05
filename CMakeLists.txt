@@ -21,12 +21,14 @@ set(SOURCE_FILES
 	src/eosclient.cpp
 	src/eosclient_func.cpp
 	src/eosclient_lib.cpp
+    src/base58.cpp
 )
 
 set(HEADER_FILES
     include/eosclient/eosclient.hpp
 	include/eosclient/eosclient_func.h
 	include/eosclient/eosclient_lib.h
+    include/eosclient/base58.hpp
 )
 
 source_group(src FILES ${SOURCE_FILES})

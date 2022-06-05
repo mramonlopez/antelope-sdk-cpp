@@ -7,8 +7,23 @@
 
 #include <eosclient/eosclient.hpp>
 #include <eosclient/eosclient_lib.h>
+#include <eosclient/base58.hpp>
 #include <iostream>
 #include <iomanip>
+
+// Private Key format: https://learnmeabitcoin.com/technical/wif
+EOSClient::EOSClient(std::string api_url, std::string priv_key, std::string account) :
+        api_url_(api_url),
+        account_(account) {
+            auto buffer = Base58Decode(priv_key);
+            auto key = convertBytesToHexStr(buffer);
+            auto key_string = std::string(key.begin(), key.end());
+            
+            // Private Key format: https://learnmeabitcoin.com/technical/wif
+            this->priv_key_ = key_string.substr(2, key_string.size() - 10); // prefix (2) + checksum (8)
+            std::cout << this->priv_key_.c_str() << std::endl;
+        }
+    
 
 void EOSClient::action(std::string contract_name, std::string action, nlohmann::json data) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -80,3 +95,6 @@ void EOSClient::action(std::string contract_name, std::string action, nlohmann::
     
     clear_program(context, ctx);
 }
+
+
+
