@@ -42,6 +42,7 @@ target_link_libraries(${LIB_NAME} PUBLIC
 	abieos
 	secp256k1
 	cryptopp
+	${EOSCLIENT_CURL_NAME}
 )
 
 target_include_directories(${LIB_NAME} PUBLIC
