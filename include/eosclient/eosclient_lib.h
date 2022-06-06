@@ -59,7 +59,9 @@ void build_transaction(abieos_context *context, json &tnx_json, std::string smar
                        SECP256K1_API::secp256k1_context *ctx, unsigned char *priv_key_bytes,
                        unsigned char *chain_id_bytes,
                        nlohmann::json data);
-void send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract,
+std::string send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract,
                       std::string eos_signature_str);
+
+std::string history_get_transaction(std::string api_url, json &tnx_json, std::string transaction_id, uint64_t blockNumHint);
 
 #endif /* eosclient_lib_h */

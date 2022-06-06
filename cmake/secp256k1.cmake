@@ -33,3 +33,10 @@ if(NOT secp256k1_POPULATED)
 	
 	add_subdirectory(${secp256k1_SOURCE_DIR} ${secp256k1_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+set_target_properties(secp256k1
+                      PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                      FOLDER "Internal"
+                      )

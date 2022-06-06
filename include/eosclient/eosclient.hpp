@@ -10,12 +10,14 @@
 
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <string>
 
 class EOSClient {
 public:
     EOSClient(std::string api_url, std::string priv_key, std::string account);
     
-    void action(std::string contract_name, std::string action, nlohmann::json data);
+    std::string action(std::string contract_name, std::string action, nlohmann::json data);
+    std::string getTransactionState(std::string transaction_id, uint64_t blockNumHint);
 private:
     
     std::string api_url_;

@@ -121,7 +121,7 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
 	// first get EOS node info
 	std::string response;
 	json response_json;
-	if (sendData("", api_url + "/get_info", response, CURL_IS_VERBOSE) == 1)
+	if (sendData("", api_url + "/chain/get_info", response, CURL_IS_VERBOSE) == 1)
 	{
 		CHECK(parseJSON(response, response_json) == 1);
 		if (!response_json["error"].is_null()) // if this exist then there is an error
@@ -181,7 +181,7 @@ void get_last_block_info(std::string api_url, json &tnx_json, uint64_t last_irre
 	json response_json;
 	CHECK(sendData("{\"block_num_or_id\":\"" + std::to_string(last_irreversible_block_num) +
 					   "\"}",
-				   api_url + "/get_block", response, CURL_IS_VERBOSE) == 1);
+				   api_url + "/chain/get_block", response, CURL_IS_VERBOSE) == 1);
 	CHECK(parseJSON(response, response_json) == 1);
     std::cout << response_json.dump(1) << std::endl;
 
@@ -205,7 +205,7 @@ void get_transaction_smart_contract_abi(std::string api_url, std::string contact
 		else
 		{
 			CHECK(sendData("{\"account_name\":\"" + contact_name + "\"}",
-						   api_url + "/get_abi", response, CURL_IS_VERBOSE) == 1);
+						   api_url + "/chain/get_abi", response, CURL_IS_VERBOSE) == 1);
 			CHECK(parseJSON(response, response_json) == 1);
 			smart_contract_abi = response_json["abi"].dump();
 			std::ofstream out(CACHE_ABI_SMART_CONTRACT_FILENAME);
@@ -463,9 +463,14 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	tnx_json["signatures"].push_back(eos_signature_str);
 	DEBUG("Done");
 }
-void build_transaction(abieos_context *context, json &tnx_json, std::string smart_contract_abi,
-					   uint64_t &transaction_contract, char *&packed_tnx, int &packed_tnx_size,
-					   SECP256K1_API::secp256k1_context *ctx, unsigned char *priv_key_bytes,
+void build_transaction(abieos_context *context,
+                       json &tnx_json,
+                       std::string smart_contract_abi,
+					   uint64_t &transaction_contract,
+                       char *&packed_tnx,
+                       int &packed_tnx_size,
+					   SECP256K1_API::secp256k1_context *ctx,
+                       unsigned char *priv_key_bytes,
 					   unsigned char *chain_id_bytes,
                        nlohmann::json data)
 {
@@ -473,15 +478,20 @@ void build_transaction(abieos_context *context, json &tnx_json, std::string smar
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
 	build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
 }
-void send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract,
+
+
+std::string send_transaction(std::string api_url,
+                      json &tnx_json,
+                      abieos_context *context,
+                      uint64_t transaction_contract,
 					  std::string eos_signature_str)
 {
 	// send the transaction
 	DEBUG("Sending transaction");
-
     DEBUG(tnx_json.dump().c_str());
+    
     std::string response;
-    json response_json;
+    
     // pack  transaction with signature before push
     check_context(context, __LINE__, __FILE__,
                   abieos_json_to_bin_reorderable(context, transaction_contract, "transaction",
@@ -498,17 +508,11 @@ void send_transaction(std::string api_url, json &tnx_json, abieos_context *conte
     CHECK(sendData("{\"signatures\":[\"" + eos_signature_str +
                        "\"], \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
                        packed_tnx_2_hex + "\"}",
-                   api_url + "/push_transaction", response, CURL_IS_VERBOSE) == 1);
-    CHECK(parseJSON(response, response_json) == 1);
+                   api_url + "/chain/push_transaction", response, CURL_IS_VERBOSE) == 1);
+    
     DEBUG("Done");
-    if (response_json["transaction_id"].is_null())
-    {
-        std::cout << "transaction_id: " << response_json.dump(1) << std::endl;
-    }
-    else
-    {
-        std::cout << "transaction_id: " << response_json["transaction_id"].dump() << std::endl;
-    }
+    
+    return response;
 }
 
 int test_transaction(std::string priv_key)
@@ -516,4 +520,22 @@ int test_transaction(std::string priv_key)
 
 	// ProfilerStop();
 	return 0;
+}
+
+
+void history_get_transaction(std::string api_url, json &tnx_json, std::string transaction_id, uint64_t blockNumHint)
+{
+    // next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
+    std::string response;
+    json response_json;
+    std::string data = "{\"id\":" + transaction_id + ", \"block_num_hint\":" + std::to_string(blockNumHint) + "}";
+    
+    std::cout << data << std::endl;
+    
+    CHECK(sendData(data, api_url + "/history/get_transaction", response, CURL_IS_VERBOSE) == 1);
+    CHECK(parseJSON(response, response_json) == 1);
+    std::cout << response_json.dump(1) << std::endl;
+//
+//    std::uint32_t ref_block_prefix = response_json["ref_block_prefix"].get<std::uint32_t>();
+//    tnx_json["ref_block_prefix"] = ref_block_prefix;
 }

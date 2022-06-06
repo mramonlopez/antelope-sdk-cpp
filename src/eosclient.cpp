@@ -25,7 +25,7 @@ EOSClient::EOSClient(std::string api_url, std::string priv_key, std::string acco
         }
     
 
-void EOSClient::action(std::string contract_name, std::string action, nlohmann::json data) {
+std::string EOSClient::action(std::string contract_name, std::string action, nlohmann::json data) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point end;
 
@@ -39,20 +39,6 @@ void EOSClient::action(std::string contract_name, std::string action, nlohmann::
     tnx_json["actions"][0]["account"] = contract_name;
     tnx_json["actions"][0]["name"] = action;
     tnx_json["actions"][0]["authorization"][0]["actor"] = account_;
-
-    // get raw code and smart contact abi
-    // CHECK(sendData("{\"code\":\"" + std::string(EOS_SMART_CONTRACT_ACCOUNT_NAME) + "\",
-    // \"action\":\"" + std::string(EOS_SMART_CONTRACT_ACTION) + "\",
-    // \"args\":{\"message\":\"Heyyyy\",\"from\":\"helloworld\"}}", getEOSChainEndpoint() +
-    // "/abi_json_to_bin", response, CURL_IS_VERBOSE) == 1); CHECK(parseJSON(response, response_json)
-    // == 1); tnx_json["actions"][0]["data"] = response_json["binargs"]; std::cout << "binargs:" <<
-    // tnx_json["actions"][0]["data"] << std::endl;
-
-    // get required keys needed to sign a transaction.
-    // CHECK(sendData("{\"transaction\":" + tnx_json.dump() +", \"available_keys\":[\"" + pub_key +
-    // "\"]}", getEOSChainEndpoint() + "/get_required_keys", response, CURL_IS_VERBOSE) == 1);
-    // CHECK(parseJSON(response, response_json) == 1);
-    // std::cout << "get required keys:" << response_json.dump(1) << std::endl;
 
     std::string smart_contract_abi;
     abieos_context *context = check(abieos_create());
@@ -83,18 +69,54 @@ void EOSClient::action(std::string contract_name, std::string action, nlohmann::
 
     build_transaction(context, tnx_json, smart_contract_abi, transaction_contract, packed_tnx, packed_tnx_size, ctx,
                       priv_key_bytes, chain_id_bytes, data);
+    
+    
     end = std::chrono::steady_clock::now();
     std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
               << "[µs]" << std::endl;
+    
+    
     begin = std::chrono::steady_clock::now();
-    send_transaction(api_url_, tnx_json, context, transaction_contract,
+    auto response = send_transaction(api_url_, tnx_json, context, transaction_contract,
                      tnx_json["signatures"][0].get<std::string>());
     end = std::chrono::steady_clock::now();
     std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
               << "[µs]" << std::endl;
     
     clear_program(context, ctx);
+    
+    json response_json;
+    CHECK(parseJSON(response, response_json) == 1);
+    
+    std::string transaction_id = response_json["transaction_id"].is_null() ? "" : response_json["transaction_id"].dump();
+    uint64_t block = 0;
+    
+    if (!response_json["processed"].is_null()) {
+        if (!response_json["processed"]["block_num"].is_null()) {
+            block = response_json["processed"]["block_num"];
+        } else if (!response_json["processed"]["action_traces"].is_null()) {
+            // TODO: get block_nun of last trace?
+        }
+        
+    }
+    
+//    if (transaction_id == "") {
+        std::cout << "response: " << response_json.dump(1) << std::endl;
+//    }
+    
+    json result;
+    
+    result["transaction_id"] = transaction_id;
+    result["block"] = block;
+    
+    return result.dump();
 }
 
+
+std::string EOSClient::getTransactionState(std::string transactionId, uint64_t blockNumHint) {
+    json tnx_json;
+    
+    return history_get_transaction(this->api_url_, tnx_json, transactionId, blockNumHint);
+}
 
 

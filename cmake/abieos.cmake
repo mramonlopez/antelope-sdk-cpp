@@ -19,3 +19,10 @@ if(NOT abieos_POPULATED)
 
 	add_subdirectory(${abieos_SOURCE_DIR} ${abieos_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+set_target_properties(abieos
+                      PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                      FOLDER "Internal"
+                      )
