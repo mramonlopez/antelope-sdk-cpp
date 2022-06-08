@@ -527,15 +527,11 @@ void history_get_transaction(std::string api_url, json &tnx_json, std::string tr
 {
     // next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
     std::string response;
-    json response_json;
-    std::string data = "{\"id\":" + transaction_id + ", \"block_num_hint\":" + std::to_string(blockNumHint) + "}";
+    std::string data = "{\"id\":\"" + transaction_id + "\", \"block_num_hint\":" + std::to_string(blockNumHint) + "}";
     
     std::cout << data << std::endl;
     
     CHECK(sendData(data, api_url + "/history/get_transaction", response, CURL_IS_VERBOSE) == 1);
-    CHECK(parseJSON(response, response_json) == 1);
-    std::cout << response_json.dump(1) << std::endl;
-//
-//    std::uint32_t ref_block_prefix = response_json["ref_block_prefix"].get<std::uint32_t>();
-//    tnx_json["ref_block_prefix"] = ref_block_prefix;
+    CHECK(parseJSON(response, tnx_json) == 1);
+    std::cout << tnx_json.dump(1) << std::endl;
 }

@@ -88,21 +88,29 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
     json response_json;
     CHECK(parseJSON(response, response_json) == 1);
     
-    std::string transaction_id = response_json["transaction_id"].is_null() ? "" : response_json["transaction_id"].dump();
+    std::string transaction_id = response_json["transaction_id"].is_null() ? "" : response_json["transaction_id"];
     uint64_t block = 0;
     
-    if (!response_json["processed"].is_null()) {
+    if (transaction_id == "") {
+        std::cout << "response: " << response_json.dump(1) << std::endl;
+        if (response_json.contains("error") &&
+            response_json["error"].contains("details") &&
+            response_json["error"]["details"].is_array()) {
+            std::string msg = "";
+            
+            for(auto d : response_json["error"]["details"]) {
+                msg = msg.append(d["message"]).append("\n");
+            }
+            
+            throw std::runtime_error(msg);
+        }
+    } else if (!response_json["processed"].is_null()) {
         if (!response_json["processed"]["block_num"].is_null()) {
             block = response_json["processed"]["block_num"];
         } else if (!response_json["processed"]["action_traces"].is_null()) {
             // TODO: get block_nun of last trace?
         }
-        
     }
-    
-//    if (transaction_id == "") {
-        std::cout << "response: " << response_json.dump(1) << std::endl;
-//    }
     
     json result;
     
@@ -114,9 +122,9 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
 
 
 std::string EOSClient::getTransactionState(std::string transactionId, uint64_t blockNumHint) {
-    json tnx_json;
+    json trx_json;
     
-    return history_get_transaction(this->api_url_, tnx_json, transactionId, blockNumHint);
+    history_get_transaction(this->api_url_, trx_json, transactionId, blockNumHint);
+    
+    return trx_json.dump();
 }
-
-
