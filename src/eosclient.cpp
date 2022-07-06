@@ -10,6 +10,7 @@
 #include <eosclient/base58.hpp>
 #include <iostream>
 #include <iomanip>
+#include <eosio/crypto.hpp>
 
 // Private Key format: https://learnmeabitcoin.com/technical/wif
 EOSClient::EOSClient(std::string api_url, std::string priv_key, std::string account) :
@@ -21,7 +22,6 @@ EOSClient::EOSClient(std::string api_url, std::string priv_key, std::string acco
             
             // Private Key format: https://learnmeabitcoin.com/technical/wif
             this->priv_key_ = key_string.substr(2, key_string.size() - 10); // prefix (2) + checksum (8)
-            std::cout << this->priv_key_.c_str() << std::endl;
         }
     
 
@@ -127,4 +127,38 @@ std::string EOSClient::getTransactionState(std::string transactionId, uint64_t b
     history_get_transaction(this->api_url_, trx_json, transactionId, blockNumHint);
     
     return trx_json.dump();
+}
+
+std::string EOSClient::getPublicKey() {
+    SECP256K1_API::secp256k1_context *ctx =
+        SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+    
+    secp256k1_pubkey pubkey;
+    unsigned char priv_key_bytes[HASH_SHA256_SIZE];
+    
+    // Private key to WIF format
+    HexStrToUchar(priv_key_bytes, this->priv_key_.c_str(), HASH_SHA256_SIZE);
+    
+    // Get public key from private key
+    auto return_val = secp256k1_ec_pubkey_create(ctx, &pubkey, priv_key_bytes);
+    
+    // Serialize public keu
+    unsigned char out[33];
+    size_t out_size = 33;
+    
+    secp256k1_ec_pubkey_serialize(ctx, out, &out_size, &pubkey, SECP256K1_EC_COMPRESSED);
+    
+    SECP256K1_API::secp256k1_context_destroy(ctx);
+    
+    // To EOS strign format
+    eosio::ecc_public_key a;
+    std::copy(out, out + out_size, a.begin());
+    
+    eosio::public_key b;
+    
+    b.emplace<0>(a);
+    
+    auto result = eosio::public_key_to_string(b);
+    
+    return result;
 }
