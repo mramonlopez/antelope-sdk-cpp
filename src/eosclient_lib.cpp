@@ -146,8 +146,7 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
     tnx_json["ref_block_num"] = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
     
     std::string tmp_exp = response_json["head_block_time"].get<std::string>();
-    // increase expiration by one minute:
-    
+	
     int year, month, day, hour, minute, second, tail = 0;
     
     check(7 == sscanf(tmp_exp.c_str(), "%d-%d-%dT%d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &tail));
@@ -158,16 +157,14 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
     t.tm_mon = month - 1;
     t.tm_mday = day;
     t.tm_hour = hour;
-    t.tm_min = minute;
+    t.tm_min = minute + 6;
     t.tm_sec = second;
+    t.tm_isdst = -1;
     
-    time_t t2 = mktime(&t);
-    t2 += 300; // TODO: make configurable
-    
-    auto t3 = localtime(&t2);
+    mktime(&t);
     
     char buffer [80];
-    strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.500", t3);
+    strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.500", &t);
 
     tnx_json["expiration"] = std::string(buffer);
         
