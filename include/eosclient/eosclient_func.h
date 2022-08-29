@@ -5,7 +5,7 @@ void abort(void) __attribute__((__noreturn__));
     do                                                           \
     {                                                            \
         fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, msg); \
-        abort();                                                 \
+        throw std::runtime_error(msg);                           \
     } while (0)
 #define EXPECT(x, c) __builtin_expect((x), (c))
 #define CHECK(cond)                                        \

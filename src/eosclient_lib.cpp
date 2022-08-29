@@ -126,17 +126,19 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
 		CHECK(parseJSON(response, response_json) == 1);
 		if (!response_json["error"].is_null()) // if this exist then there is an error
 		{
-			std::cerr << "ERROR: Cannot access endpoint : " << api_url << std::endl;
-			std::cout << response_json.dump(1) << std::endl;
-			exit(1);
+            std::string msg = "ERROR: Cannot access endpoint " + api_url + "\n" + response_json.dump(1);
+                
+			std::cerr << msg << std::endl;
+            throw std::runtime_error(msg);
 		}
 		std::cout << "Endpoint OK : " << api_url << std::endl;
         std::cout << response_json.dump(1) << std::endl;
 	}
 	else
 	{
-		std::cerr << "ERROR: Cannot access endpoint : " << api_url << std::endl;
-		exit(1);
+        std::string msg = "ERROR: Cannot access endpoint " + api_url;
+		std::cerr << msg << std::endl;
+        throw std::runtime_error(msg);
 	}
 	chain_id = response_json["chain_id"]; // not used for the moment
 	HexStrToUchar(chain_id_bytes, chain_id.c_str(), 32);
