@@ -19,7 +19,6 @@
 #include <eosio/abi.hpp>
 #include <eosio/crypto.hpp>
 #include <eosio/name.hpp>
-#include <eosio/ship_protocol.hpp>
 #include <eosio/stream.hpp>
 #include <eosio/time.hpp>
 #include <eosio/to_json.hpp>
