@@ -45,12 +45,12 @@ int parseJSON(std::string json_str, json &j);
 
 std::vector<unsigned char> convertBytesToHexStr(const std::vector<unsigned char> &src);
 std::vector<unsigned char> convertHexStrToBytes(const std::vector<unsigned char> &hex);
+std::string toHexStr(const std::string &bytes);
+std::string fromHexStr(const std::string &hex);
 
 std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str = false);
 std::string sha256Data(std::string message, bool convert_hex_str = false);
 std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_str = false);
 std::string RIPEMD160Data(std::string message, bool convert_hex_str = false);
-void HexStrToUchar(unsigned char *dest, const char *source, int bytes_n);
-std::string UcharToHexStr(unsigned char *data, int len);
 
 #endif

@@ -58,11 +58,8 @@ bool is_canonical(unsigned char *signature)
 		   !(signature[32] == 0 && !(signature[33] & 0x80));
 }
 
-void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json &tnx_json,
-					  SECP256K1_API::secp256k1_context *&ctx)
+void init_transaction_json(json &tnx_json)
 {
-	HexStrToUchar(priv_key_bytes, priv_key.c_str(), HASH_SHA256_SIZE);
-	ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 	// init final tnx with example of json:
 	parseJSON(R"(
 		{
@@ -92,14 +89,12 @@ void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json 
 	)", tnx_json);
 }
 
-void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx)
-{
+void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx) {
 	abieos_destroy(context);
 	SECP256K1_API::secp256k1_context_destroy(ctx);
 }
 
-uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
-{
+uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes) {
 	// first get EOS node info
 	std::string response;
 	json response_json;
@@ -122,8 +117,12 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
 		std::cerr << msg << std::endl;
         throw std::runtime_error(msg);
 	}
+    
 	chain_id = response_json["chain_id"]; // not used for the moment
-	HexStrToUchar(chain_id_bytes, chain_id.c_str(), 32);
+    auto bytesString = fromHexStr(chain_id);
+    strncpy((char *)chain_id_bytes, &bytesString[0], 32);
+    
+    printf("HEX2: %.*s\n", HASH_SHA256_SIZE, chain_id_bytes);
 
 	std::uint64_t last_irreversible_block_num = response_json["last_irreversible_block_num"].get<std::uint64_t>();
    
@@ -385,7 +384,9 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 
 	std::string signature_feed_sha256 = sha256Data(signature_feed, true);
 	unsigned char signature_feed_sha256_bytes[HASH_SHA256_SIZE];
-	HexStrToUchar(signature_feed_sha256_bytes, signature_feed_sha256.c_str(), HASH_SHA256_SIZE);
+	
+    auto bytesString = fromHexStr(signature_feed_sha256);
+    strncpy((char *)signature_feed_sha256_bytes, &bytesString[0], HASH_SHA256_SIZE);
 
 	//build signature object:
 	SECP256K1_API::secp256k1_ecdsa_recoverable_signature recoverable_signature;

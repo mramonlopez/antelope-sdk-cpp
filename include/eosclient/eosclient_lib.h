@@ -14,19 +14,6 @@
 //Crypto and hashing stuff:
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
-//crypto++
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/hex.h>
-using CryptoPP::HexEncoder;
-#include <cryptopp/sha.h>
-using CryptoPP::SHA256;
-using CryptoPP::SHA512;
-#include <cryptopp/ripemd.h>
-using CryptoPP::RIPEMD160;
-#include <cryptopp/filters.h>
-using CryptoPP::Redirector;
-using CryptoPP::StringSink;
-using CryptoPP::StringSource;
 
 /**
  * @file eosclient_lib.h
@@ -58,8 +45,7 @@ T check_context(abieos_context *context, int line, std::string file, T value)
 
 std::string base58check(std::string data);
 bool is_canonical(unsigned char *signature);
-void init_transaction(std::string priv_key, unsigned char *priv_key_bytes, json &tnx_json,
-                      SECP256K1_API::secp256k1_context *&ctx);
+void init_transaction_json(json &tnx_json);
 void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx);
 uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes);
 void get_last_block_info(std::string api_url, json &tnx_json);

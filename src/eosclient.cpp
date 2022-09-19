@@ -30,10 +30,9 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
     std::chrono::steady_clock::time_point end;
 
     json tnx_json; // final json of the tnx that will be sended
+    SECP256K1_API::secp256k1_context *ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
     
-    unsigned char priv_key_bytes[32];
-    SECP256K1_API::secp256k1_context *ctx;
-    init_transaction(priv_key_, priv_key_bytes, tnx_json, ctx);
+    init_transaction_json(tnx_json);
     
     // Set the initial tnx values:
     tnx_json["actions"][0]["account"] = contract_name;
@@ -66,6 +65,9 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
     std::cout << std::setw(20) << std::left << "* private key: " << std::setw(30) << priv_key_ << std::endl;
 
     begin = std::chrono::steady_clock::now();
+    
+    auto bytesString = fromHexStr(priv_key_);
+    unsigned char *priv_key_bytes = (unsigned char *) &bytesString[0];
 
     build_transaction(context, tnx_json, smart_contract_abi, transaction_contract, packed_tnx, packed_tnx_size, ctx,
                       priv_key_bytes, chain_id_bytes, data);
@@ -134,10 +136,10 @@ std::string EOSClient::getPublicKey() {
         SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
     
     secp256k1_pubkey pubkey;
-    unsigned char priv_key_bytes[HASH_SHA256_SIZE];
     
     // Private key to WIF format
-    HexStrToUchar(priv_key_bytes, this->priv_key_.c_str(), HASH_SHA256_SIZE);
+    auto bytesString = fromHexStr(this->priv_key_);
+    unsigned char *priv_key_bytes = (unsigned char *) &bytesString[0];
     
     // Get public key from private key
     auto return_val = secp256k1_ec_pubkey_create(ctx, &pubkey, priv_key_bytes);

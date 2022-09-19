@@ -161,6 +161,15 @@ std::vector<unsigned char> convertBytesToHexStr(const std::vector<unsigned char>
 
     return dst;
 }
+
+std::string toHexStr(const std::string &bytes) {
+    std::vector<unsigned char> src(bytes.begin(), bytes.end());
+    auto vec = convertBytesToHexStr(src);
+    std::string s(vec.begin(), vec.end());
+
+    return s;
+}
+
 /**
  * Convert hex to bytes
  * @author OracleChain
@@ -177,118 +186,59 @@ std::vector<unsigned char> convertHexStrToBytes(const std::vector<unsigned char>
     return dst;
 }
 
+std::string fromHexStr(const std::string &hex) {
+    std::vector<unsigned char> src(hex.begin(), hex.end());
+    auto vec = convertHexStrToBytes(src);
+    std::string s(vec.begin(), vec.end());
+
+    return s;
+}
+
 /**
  * Build sha256 from a vector
 */
-std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str)
-{
+std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str) {
     /////////////////////////////////////////////
-    //Create a SHA-512 data Hash
-    std::string digest_hex;
-    HexEncoder encoder(new StringSink(digest_hex), false);
+    //Create a SHA-256 data Hash
     std::string digest;
 
     SHA256 sha256;
     sha256.Update(message_vect.data(), message_vect.size());
     digest.resize(sha256.DigestSize());
     sha256.Final((unsigned char *)&digest[0]);
-    if (convert_hex_str)
-    {
-        StringSource ss(digest, true, new Redirector(encoder));
-        return digest_hex;
-    }
-    else
-    {
-        return digest;
-    }
+    
+    return convert_hex_str ? toHexStr(digest) : digest;
 }
+
 std::string sha256Data(std::string message, bool convert_hex_str)
 {
-    /////////////////////////////////////////////
-    //Create a SHA-512 data Hash
     std::vector<uint8_t> message_vect(message.begin(), message.end());
-    std::string digest_hex;
-    HexEncoder encoder(new StringSink(digest_hex), false);
-    std::string digest;
-
-    SHA256 sha256;
-    sha256.Update(message_vect.data(), message_vect.size());
-    digest.resize(sha256.DigestSize());
-    sha256.Final((unsigned char *)&digest[0]);
-    if (convert_hex_str)
-    {
-        StringSource ss(digest, true, new Redirector(encoder));
-        return digest_hex;
-    }
-    else
-    {
-        return digest;
-    }
+    
+    return sha256Data(message_vect, convert_hex_str);
 }
+
 /**
  * Build RIPEMD-160 hash from a vector
 */
-std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_str)
-{
+std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_str) {
     /////////////////////////////////////////////
     //Create a RIPEMD-160 data Hash
-    std::string digest_hex;
-    HexEncoder encoder(new StringSink(digest_hex), false);
     std::string digest;
 
     RIPEMD160 ripemd;
     ripemd.Update(message_vect.data(), message_vect.size());
     digest.resize(ripemd.DigestSize());
     ripemd.Final((unsigned char *)&digest[0]);
-    if (convert_hex_str)
-    {
-        StringSource ss(digest, true, new Redirector(encoder));
-        return digest_hex;
-    }
-    else
-    {
-        return digest;
-    }
+   
+    return convert_hex_str ? toHexStr(digest) : digest;
 }
 /**
  * Build RIPEMD-160 hash from a string
 */
-std::string RIPEMD160Data(std::string message, bool convert_hex_str)
-{
-    /////////////////////////////////////////////
-    //Create a RIPEMD-160 data Hash
+std::string RIPEMD160Data(std::string message, bool convert_hex_str) {
     std::vector<uint8_t> message_vect(message.begin(), message.end());
-    std::string digest_hex;
-    HexEncoder encoder(new StringSink(digest_hex), false);
-    std::string digest;
-
-    RIPEMD160 ripemd;
-    ripemd.Update(message_vect.data(), message_vect.size());
-    digest.resize(ripemd.DigestSize());
-    ripemd.Final((unsigned char *)&digest[0]);
-    if (convert_hex_str)
-    {
-        StringSource ss(digest, true, new Redirector(encoder));
-        return digest_hex;
-    }
-    else
-    {
-        return digest;
-    }
-}
-//http://www.cplusplus.com/forum/general/53397/
-int chhex(char ch)
-{
-    if (isdigit(ch))
-        return ch - '0';
-    if (tolower(ch) >= 'a' && tolower(ch) <= 'f')
-        return ch - 'a' + 10;
-    return -1;
-}
-void HexStrToUchar(unsigned char *dest, const char *source, int bytes_n)
-{
-    for (bytes_n--; bytes_n >= 0; bytes_n--)
-        dest[bytes_n] = 16 * chhex(source[bytes_n * 2]) + chhex(source[bytes_n * 2 + 1]);
+    
+    return RIPEMD160Data(message_vect, convert_hex_str);
 }
 
 //https://stackoverflow.com/a/14051107/11697589
