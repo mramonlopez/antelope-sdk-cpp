@@ -19,10 +19,3 @@ if(NOT cryptopp_POPULATED)
 	
 	add_subdirectory(${cryptopp_SOURCE_DIR} ${cryptopp_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
-
-set_target_properties(cryptopp
-                      PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-                      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-                      FOLDER "Internal"
-                      )
