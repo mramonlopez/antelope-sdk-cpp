@@ -232,6 +232,7 @@ std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_st
    
     return convert_hex_str ? toHexStr(digest) : digest;
 }
+
 /**
  * Build RIPEMD-160 hash from a string
 */
@@ -239,22 +240,4 @@ std::string RIPEMD160Data(std::string message, bool convert_hex_str) {
     std::vector<uint8_t> message_vect(message.begin(), message.end());
     
     return RIPEMD160Data(message_vect, convert_hex_str);
-}
-
-//https://stackoverflow.com/a/14051107/11697589
-//https://stackoverflow.com/questions/7639656/getting-a-buffer-into-a-stringstream-in-hex-representation/7639754#7639754
-std::string UcharToHexStr(unsigned char *data, int len) //bytes to string
-{
-    //this was first:
-    // std::stringstream ss;
-    // for (int i = 0; i < data_length; ++i)
-    //     ss << std::hex << (int)data[i];
-    // std::string mystr = ss.str();
-
-    //the following is better: IT FILLS WITH 0 !!!!
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (int i = 0; i < len; ++i)
-        ss << std::setw(2) << static_cast<unsigned>(data[i]);
-    return ss.str();
 }
