@@ -24,27 +24,9 @@
 #include <eosio/to_json.hpp>
 #include <eosio/varint.hpp>
 #include <eosio/abieos.h>
+
+#include <eosclient/eosclient_lib.h>
 #include <eosclient/eosclient_func.h>
-
-// abieos test functions
-template <typename T>
-T check(T value, const char *msg = "")
-{
-	if (!value)
-		throw std::runtime_error(std::string{msg} + " failed");
-	return value;
-}
-
-template <typename T>
-T check_context(abieos_context *context, int line, std::string file, T value)
-{
-    if (!value)
-	{
-		std::cout << "Error at: ./" << file << ":" << line << std::endl;
-		throw std::runtime_error(abieos_get_error(context));
-	}
-	return value;
-}
 
 /**
  * This is the bitcoin base58check
