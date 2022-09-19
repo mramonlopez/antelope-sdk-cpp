@@ -46,6 +46,7 @@ std::string base58check(std::string data)
 														data_with_checksum.size()); // convert to base58
 	return data_base58check_str;
 }
+
 /**
  * Function to test if signature is canonical
  * @param signature A 64 Bytes signature containing r then s parameter of the signature
