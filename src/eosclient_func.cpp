@@ -8,22 +8,12 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-//Crypto and hashing stuff:
-#include <secp256k1.h>
-#include <secp256k1_recovery.h>
-//crypto++
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/hex.h>
-using CryptoPP::HexEncoder;
 #include <cryptopp/sha.h>
 using CryptoPP::SHA256;
 using CryptoPP::SHA512;
 #include <cryptopp/ripemd.h>
 using CryptoPP::RIPEMD160;
-#include <cryptopp/filters.h>
-using CryptoPP::Redirector;
-using CryptoPP::StringSink;
-using CryptoPP::StringSource;
+
 
 #include <eosclient/eosclient_func.h>
 
