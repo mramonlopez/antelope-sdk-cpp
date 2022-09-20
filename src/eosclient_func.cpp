@@ -10,9 +10,6 @@
 
 using json = nlohmann::json;
 using namespace onikami::eosclient;
-using CryptoPP::SHA256;
-using CryptoPP::SHA512;
-using CryptoPP::RIPEMD160;
 
 #include <eosclient/eosclient_func.h>
 

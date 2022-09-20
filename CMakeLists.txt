@@ -21,7 +21,6 @@ ENDIF(!EOSCLIENT_OPENSSL_CRYPTO_NAME)
 
 # find_package(curl REQUIRED)
 
-include(cmake/cryptopp.cmake)
 include(cmake/abieos.cmake)
 include(cmake/secp256k1.cmake)
 include(cmake/nlohman_json.cmake)
@@ -52,14 +51,12 @@ add_dependencies(${LIB_NAME}
     ${EOSCLIENT_OPENSSL_CRYPTO_NAME}
     ${EOSCLIENT_CURL_NAME}
     secp256k1
-    cryptopp
     abieos)
 
 target_link_libraries(${LIB_NAME} PUBLIC 
 	nlohmann_json::nlohmann_json
 	abieos
 	secp256k1
-	cryptopp
     ${EOSCLIENT_OPENSSL_NAME}
     ${EOSCLIENT_OPENSSL_CRYPTO_NAME}
 	${EOSCLIENT_CURL_NAME}
@@ -68,7 +65,6 @@ target_link_libraries(${LIB_NAME} PUBLIC
 target_include_directories(${LIB_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${abieos_SOURCE_DIR}/include
-	${cryptopp_SOURCE_DIR}/include
 	${secp256k1_SOURCE_DIR}/include
 	${CURL_INCLUDE_DIR}
 	${json_SOURCE_DIR}/include
