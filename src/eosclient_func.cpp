@@ -6,12 +6,14 @@
 #include <string.h>
 #include <vector>
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
+#include <eosclient/Hash.hpp>
 #include <cryptopp/sha.h>
+#include <cryptopp/ripemd.h>
+
+using json = nlohmann::json;
+using namespace onikami::eosclient;
 using CryptoPP::SHA256;
 using CryptoPP::SHA512;
-#include <cryptopp/ripemd.h>
 using CryptoPP::RIPEMD160;
 
 
@@ -190,14 +192,17 @@ std::string fromHexStr(const std::string &hex) {
 std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str) {
     /////////////////////////////////////////////
     //Create a SHA-256 data Hash
-    std::string digest;
+   Buffer digest;
 
-    SHA256 sha256;
-    sha256.Update(message_vect.data(), message_vect.size());
-    digest.resize(sha256.DigestSize());
-    sha256.Final((unsigned char *)&digest[0]);
+//    SHA256 sha256;
+//    sha256.Update(message_vect.data(), message_vect.size());
+//    digest.resize(sha256.DigestSize());
+//    sha256.Final((unsigned char *)&digest[0]);
     
-    return convert_hex_str ? toHexStr(digest) : digest;
+    Hash::SHA256(message_vect, digest);
+    
+    
+    return convert_hex_str ? toHexStr(toString(digest)) : toString(digest);
 }
 
 std::string sha256Data(std::string message, bool convert_hex_str)
