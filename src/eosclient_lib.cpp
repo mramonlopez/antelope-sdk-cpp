@@ -426,9 +426,10 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	}
 	checksum_data.push_back('K');
 	checksum_data.push_back('1');
-	std::string checksum_data_str(checksum_data.begin(), checksum_data.end());
-	std::string checksum = RIPEMD160Data(checksum_data_str);
-	char const *checksum_char = checksum.c_str();
+    
+    Buffer checksum;
+    Hash::RIPEMD160(checksum_data, checksum);
+    
 	// build the final signature that will be passed in base58
 	std::vector<unsigned char> base58_data;
 	base58_data.push_back(recover_id_2); // add recovery id
@@ -437,10 +438,10 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 		base58_data.push_back(recoverable_signature_serilized[i]); // add signature (r & s)
 	}
 	// add the 4 bytes checksum
-	base58_data.push_back(checksum_char[0]);
-	base58_data.push_back(checksum_char[1]);
-	base58_data.push_back(checksum_char[2]);
-	base58_data.push_back(checksum_char[3]);
+	base58_data.push_back(checksum[0]);
+	base58_data.push_back(checksum[1]);
+	base58_data.push_back(checksum[2]);
+	base58_data.push_back(checksum[3]);
 
 	std::string base58_data_str(base58_data.begin(),
 								base58_data.end()); // to string

@@ -21,6 +21,7 @@ class Hash
 public:
     static bool SHA256(const Buffer &msg, Buffer &digest);
     static bool SHA512(const Buffer &msg, Buffer &digest);
+    static bool RIPEMD160(const Buffer &msg, Buffer &digest);
     static bool hash(const Buffer &msg, Buffer &digest, const EVP_MD* algorithm);
     
     Hash() = delete;

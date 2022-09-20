@@ -18,6 +18,10 @@ bool Hash::SHA512(const Buffer &msg, Buffer &digest) {
     return Hash::hash(msg, digest, EVP_sha512());
 }
 
+bool Hash::RIPEMD160(const Buffer &msg, Buffer &digest) {
+    return Hash::hash(msg, digest, EVP_ripemd160());
+}
+
 bool Hash::hash(const Buffer &msg, Buffer &digest, const EVP_MD *algorithm) {
     unsigned char *buffer;
     unsigned int bufferLength;

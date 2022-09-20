@@ -48,9 +48,4 @@ std::vector<unsigned char> convertHexStrToBytes(const std::vector<unsigned char>
 std::string toHexStr(const std::string &bytes);
 std::string fromHexStr(const std::string &hex);
 
-std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str = false);
-std::string sha256Data(std::string message, bool convert_hex_str = false);
-std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_str = false);
-std::string RIPEMD160Data(std::string message, bool convert_hex_str = false);
-
 #endif
