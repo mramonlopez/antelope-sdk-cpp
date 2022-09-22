@@ -11,15 +11,15 @@
 
 using namespace onikami::eosclient;
 
-Buffer toBuffer(std::string str) {
+Buffer onikami::eosclient::toBuffer(std::string str) {
     return Buffer(str.begin(), str.end());
 }
 
-std::string toString(Buffer buffer) {
+std::string onikami::eosclient::toString(Buffer buffer) {
     return std::string(buffer.begin(), buffer.end());
 }
 
-std::string toHexString(Buffer buffer) {
+std::string onikami::eosclient::toHexString(Buffer buffer) {
     const std::string charset("0123456789abcdef");
     std::string hex("");
     
