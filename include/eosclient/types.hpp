@@ -18,25 +18,9 @@ namespace eosclient
 
 typedef std::vector<unsigned char> Buffer;
 
-Buffer toBuffer(std::string str) {
-    return Buffer(str.begin(), str.end());
-}
-
-std::string toString(Buffer buffer) {
-    return std::string(buffer.begin(), buffer.end());
-}
-
-std::string toHexString(Buffer buffer) {
-    const std::string charset("0123456789abcdef");
-    std::string hex("");
-    
-    for(auto byte : buffer) {
-        hex += charset.at(byte >> 4);
-        hex += charset.at(byte & 0x0F);
-    }
-    
-    return hex;
-}
+Buffer toBuffer(std::string str);
+std::string toString(Buffer buffer);
+std::string toHexString(Buffer buffer);
 
 } // eosclient
 } // onikami
