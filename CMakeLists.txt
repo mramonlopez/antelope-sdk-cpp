@@ -31,6 +31,7 @@ set(SOURCE_FILES
 	src/eosclient_lib.cpp
     src/base58.cpp
     src/Hash.cpp
+    src/types.cpp
 )
 
 set(HEADER_FILES
