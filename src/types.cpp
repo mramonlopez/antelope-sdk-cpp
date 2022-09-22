@@ -1,6 +1,6 @@
 //
 //  types.hpp
-//  waxtestapp
+//  eosclient
 //
 //  Created by Manuel Ramon Lopez Torres on 22/9/22.
 //

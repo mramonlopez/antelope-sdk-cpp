@@ -1,12 +1,12 @@
 //
 //  types.hpp
-//  waxtestapp
+//  eosclient
 //
 //  Created by Manuel Ramon Lopez Torres on 20/9/22.
 //
 
-#ifndef types_h
-#define types_h
+#ifndef eosclient_types_h
+#define eosclient_types_h
 
 #include <vector>
 #include <string>
@@ -26,4 +26,4 @@ std::string toHexString(Buffer buffer);
 } // onikami
 
 
-#endif /* types_h */
+#endif /* eosclient_types_h */

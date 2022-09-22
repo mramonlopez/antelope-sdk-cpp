@@ -5,8 +5,8 @@
 //  Created by Manuel Ramon Lopez Torres on 20/9/22.
 //
 
-#ifndef hash_hpp
-#define hash_hpp
+#ifndef eosclient_hash_hpp
+#define eosclient_hash_hpp
 
 #include <eosclient/types.hpp>
 #include <openssl/evp.h>
@@ -30,4 +30,4 @@ public:
 } // eosclient
 } // onikami
 
-#endif /* hash_hpp */
+#endif /* eosclient_hash_hpp */
