@@ -6,14 +6,10 @@
 #include <string.h>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include <eosclient/Hash.hpp>
+
 using json = nlohmann::json;
-
-#include <cryptopp/sha.h>
-using CryptoPP::SHA256;
-using CryptoPP::SHA512;
-#include <cryptopp/ripemd.h>
-using CryptoPP::RIPEMD160;
-
+using namespace onikami::eosclient;
 
 #include <eosclient/eosclient_func.h>
 
@@ -182,52 +178,4 @@ std::string fromHexStr(const std::string &hex) {
     std::string s(vec.begin(), vec.end());
 
     return s;
-}
-
-/**
- * Build sha256 from a vector
-*/
-std::string sha256Data(std::vector<uint8_t> message_vect, bool convert_hex_str) {
-    /////////////////////////////////////////////
-    //Create a SHA-256 data Hash
-    std::string digest;
-
-    SHA256 sha256;
-    sha256.Update(message_vect.data(), message_vect.size());
-    digest.resize(sha256.DigestSize());
-    sha256.Final((unsigned char *)&digest[0]);
-    
-    return convert_hex_str ? toHexStr(digest) : digest;
-}
-
-std::string sha256Data(std::string message, bool convert_hex_str)
-{
-    std::vector<uint8_t> message_vect(message.begin(), message.end());
-    
-    return sha256Data(message_vect, convert_hex_str);
-}
-
-/**
- * Build RIPEMD-160 hash from a vector
-*/
-std::string RIPEMD160Data(std::vector<uint8_t> message_vect, bool convert_hex_str) {
-    /////////////////////////////////////////////
-    //Create a RIPEMD-160 data Hash
-    std::string digest;
-
-    RIPEMD160 ripemd;
-    ripemd.Update(message_vect.data(), message_vect.size());
-    digest.resize(ripemd.DigestSize());
-    ripemd.Final((unsigned char *)&digest[0]);
-   
-    return convert_hex_str ? toHexStr(digest) : digest;
-}
-
-/**
- * Build RIPEMD-160 hash from a string
-*/
-std::string RIPEMD160Data(std::string message, bool convert_hex_str) {
-    std::vector<uint8_t> message_vect(message.begin(), message.end());
-    
-    return RIPEMD160Data(message_vect, convert_hex_str);
 }
