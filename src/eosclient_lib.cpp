@@ -467,6 +467,7 @@ void build_transaction(abieos_context *context,
 {
 	build_transaction_action_binary(context, tnx_json, smart_contract_abi, data);
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
+    
 	build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
 }
 
