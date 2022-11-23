@@ -12,9 +12,17 @@
 #include <iostream>
 #include <string>
 
+class Authorizer {
+public:
+    std::string account;
+    std::string priv_key;
+    
+    Authorizer(std::string account, std::string priv_key) : account(account), priv_key(priv_key) {}
+};
+
 class EOSClient {
 public:
-    EOSClient(std::string api_url, std::string priv_key, std::string account);
+    EOSClient(std::string api_url, std::vector<Authorizer> authorizers);
     
     std::string action(std::string contract_name, std::string action, nlohmann::json data);
     std::string getTransactionState(std::string transaction_id, uint64_t blockNumHint);
@@ -24,8 +32,7 @@ public:
 private:
     
     std::string api_url_;
-    std::string priv_key_;
-    std::string account_;
+    std::vector<Authorizer> authorizers_;
 };
 
 #endif /* eosclient_hpp */
