@@ -19,6 +19,8 @@ public:
     std::string action(std::string contract_name, std::string action, nlohmann::json data);
     std::string getTransactionState(std::string transaction_id, uint64_t blockNumHint);
     std::string getPublicKey();
+    bool createKeyPair(std::string &priv_key, std::string &pub_key);
+    inline std::string getApiURL() const { return api_url_; }
 private:
     
     std::string api_url_;

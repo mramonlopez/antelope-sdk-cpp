@@ -15,6 +15,10 @@ Buffer onikami::eosclient::toBuffer(std::string str) {
     return Buffer(str.begin(), str.end());
 }
 
+Buffer onikami::eosclient::toBuffer(unsigned char *c, size_t size) {
+    return Buffer(c, c + size);
+}
+
 std::string onikami::eosclient::toString(Buffer buffer) {
     return std::string(buffer.begin(), buffer.end());
 }

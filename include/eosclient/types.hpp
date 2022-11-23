@@ -19,6 +19,7 @@ namespace eosclient
 typedef std::vector<unsigned char> Buffer;
 
 Buffer toBuffer(std::string str);
+Buffer toBuffer(unsigned char *c, size_t size);
 std::string toString(Buffer buffer);
 std::string toHexString(Buffer buffer);
 
