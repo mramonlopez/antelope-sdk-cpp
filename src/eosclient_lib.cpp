@@ -76,18 +76,13 @@ void init_transaction_json(json &tnx_json)
 				{
 					"account":"<REPLACED>",
                     "name":"<REPLACED>",
-					"authorization":[
-						{
-							"actor":"<REPLACED>",
-							"permission":"active"
-						}
-					],
+					"authorization":[],
 					"data": "<REPLACED>"
 				}
 			],
              "context_free_actions":[],
              "context_free_data":[],
-             "delay_sec":0,
+             "delay_sec":10,
              "expiration":"<REPLACED>",
              "max_cpu_usage_ms":0,
              "max_net_usage_words":0,
@@ -461,28 +456,33 @@ void build_transaction(abieos_context *context,
                        char *&packed_tnx,
                        int &packed_tnx_size,
 					   SECP256K1_API::secp256k1_context *ctx,
-                       unsigned char *priv_key_bytes,
+                       std::vector<std::string> priv_key_bytes_vector,
 					   unsigned char *chain_id_bytes,
                        nlohmann::json data)
 {
 	build_transaction_action_binary(context, tnx_json, smart_contract_abi, data);
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
     
-	build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
+    // Add singatures
+    for(auto bytesString : priv_key_bytes_vector) {
+        unsigned char *priv_key_bytes = (unsigned char *) &bytesString[0];
+        
+        build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
+    }
 }
 
 
 std::string send_transaction(std::string api_url,
                       json &tnx_json,
                       abieos_context *context,
-                      uint64_t transaction_contract,
-					  std::string eos_signature_str)
+                      uint64_t transaction_contract)
 {
+    std::string response;
+    std::string signatures = tnx_json["signatures"].dump();
+        
 	// send the transaction
 	DEBUG("Sending transaction");
     DEBUG(tnx_json.dump().c_str());
-    
-    std::string response;
     
     // pack  transaction with signature before push
     check_context(context, __LINE__, __FILE__,
@@ -497,10 +497,12 @@ std::string send_transaction(std::string api_url,
     std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
     std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
 
-    CHECK(sendData("{\"signatures\":[\"" + eos_signature_str +
-                       "\"], \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
-                       packed_tnx_2_hex + "\"}",
-                   api_url + "/chain/push_transaction", response, CURL_IS_VERBOSE) == 1);
+    std::string data = "{\"signatures\":" + signatures +
+    ", \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
+    packed_tnx_2_hex + "\"}";
+    
+    std::cout << std::endl << data << std::endl << std::endl;
+    CHECK(sendData(data, api_url + "/chain/push_transaction", response, CURL_IS_VERBOSE) == 1);
     
     DEBUG("Done");
     
@@ -527,3 +529,4 @@ void history_get_transaction(std::string api_url, json &tnx_json, std::string tr
     CHECK(parseJSON(response, tnx_json) == 1);
     std::cout << tnx_json.dump(1) << std::endl;
 }
+    
