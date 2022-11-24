@@ -16,8 +16,12 @@ class Authorizer {
 public:
     std::string account;
     std::string priv_key;
+    std::string permission;
     
-    Authorizer(std::string account, std::string priv_key) : account(account), priv_key(priv_key) {}
+    Authorizer(std::string account, std::string priv_key, std::string permission = "active") :
+        account(account),
+        priv_key(priv_key),
+        permission(permission) {}
 };
 
 class EOSClient {

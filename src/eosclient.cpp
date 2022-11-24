@@ -26,9 +26,8 @@ EOSClient::EOSClient(std::string api_url, std::vector<Authorizer> authorizers) :
                 
                 // Private Key format: https://learnmeabitcoin.com/technical/wif
                 auto priv_key = key_string.substr(2, key_string.size() - 10); // prefix (2) + checksum (8)
-                std::cout << "priv_key -> " << priv_key << std::endl;
                 
-                this->authorizers_.push_back(Authorizer(a.account, priv_key));
+                this->authorizers_.push_back(Authorizer(a.account, priv_key, a.permission));
             }
         }
     
@@ -49,7 +48,7 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
     for (auto a : this->authorizers_) {
         json auth;
         auth["actor"] = a.account;
-        auth["permission"] = "active";
+        auth["permission"] = a.permission;
         tnx_json["actions"][0]["authorization"].push_back(auth);
     }
     
