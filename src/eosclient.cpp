@@ -32,28 +32,17 @@ EOSClient::EOSClient(std::string api_url, std::vector<Authorizer> authorizers) :
         }
     
 
-std::string EOSClient::action(std::string contract_name, std::string action, nlohmann::json data) {
+std::string EOSClient::action(std::vector<Action> actions) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point end;
 
     json tnx_json; // final json of the tnx that will be sended
     SECP256K1_API::secp256k1_context *ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
     
+    // Set the initial tnx values:
     init_transaction_json(tnx_json);
     
-    // Set the initial tnx values:
-    tnx_json["actions"][0]["account"] = contract_name;
-    tnx_json["actions"][0]["name"] = action;
     
-    for (auto a : this->authorizers_) {
-        json auth;
-        auth["actor"] = a.account;
-        auth["permission"] = a.permission;
-        tnx_json["actions"][0]["authorization"].push_back(auth);
-    }
-    
-
-    std::string smart_contract_abi;
     abieos_context *context = check(abieos_create());
     char *packed_tnx; //buffer of 10000
     int packed_tnx_size;
@@ -63,20 +52,34 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
     unsigned char chain_id_bytes[HASH_SHA256_SIZE];
 
     end = std::chrono::steady_clock::now();
-    get_init_data(api_url_, tnx_json, chain_id, chain_id_bytes, smart_contract_abi);
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
-              << "[µs]" << std::endl;
+    get_init_data(api_url_, tnx_json, chain_id, chain_id_bytes);
 
-    // Print current tx variables before build tnx:
-    std::cout << "**** Transaction variables ****" << std::endl;
-    std::cout << std::setw(20) << std::left << "* ref_block_num: " << std::setw(30) << tnx_json["ref_block_num"]
-              << std::endl;
-    std::cout << std::setw(20) << std::left << "* ref_block_prefix: " << std::setw(30)
-              << tnx_json["ref_block_prefix"] << std::endl;
-    std::cout << std::setw(20) << std::left << "* expiration: " << std::setw(30) << tnx_json["expiration"]
-              << std::endl;
-    std::cout << std::setw(20) << std::left << "* chain_id: " << std::setw(30) << chain_id << std::endl;
-    
+    for(auto action : actions) {
+        std::string smart_contract_abi;
+        
+        get_transaction_smart_contract_abi(api_url_, action.account, smart_contract_abi);
+        
+        json act;
+        
+        act["account"] = action.account;
+        act["name"] = action.name;
+        act["authorization"] = json::array();
+        
+        for (auto a : this->authorizers_) {
+            json auth;
+            auth["actor"] = a.account;
+            auth["permission"] = a.permission;
+            
+            act["authorization"].push_back(auth);
+        }
+        
+        act["data"] = std::string(build_transaction_action_binary(context, action.account, action.name, smart_contract_abi, action.data));
+        
+        tnx_json["actions"].push_back(act);
+        
+        std::cout << "ACTION: " << act << std::endl;
+    }
+
     begin = std::chrono::steady_clock::now();
     
     std::vector<std::string> priv_key_bytes_vector;
@@ -87,21 +90,14 @@ std::string EOSClient::action(std::string contract_name, std::string action, nlo
         priv_key_bytes_vector.push_back(bytesString);
     }
 
-    build_transaction(context, tnx_json, smart_contract_abi, transaction_contract, packed_tnx, packed_tnx_size, ctx,
-                      priv_key_bytes_vector, chain_id_bytes, data);
+    build_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size, ctx,
+                      priv_key_bytes_vector, chain_id_bytes);
     
-    
-    end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
-              << "[µs]" << std::endl;
-    
-    
+
     begin = std::chrono::steady_clock::now();
     
     auto response = send_transaction(api_url_, tnx_json, context, transaction_contract);
     end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
-              << "[µs]" << std::endl;
     
     clear_program(context, ctx);
     
