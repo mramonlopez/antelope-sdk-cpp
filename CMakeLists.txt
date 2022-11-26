@@ -41,6 +41,7 @@ set(HEADER_FILES
     include/eosclient/base58.hpp
     include/eosclient/Hash.hpp
     include/eosclient/types.hpp
+    include/eosclient/Action.hpp
 )
 
 source_group(src FILES ${SOURCE_FILES})

@@ -72,23 +72,16 @@ void init_transaction_json(json &tnx_json)
 	// init final tnx with example of json:
 	parseJSON(R"(
 		{
-			"actions": [
-				{
-					"account":"<REPLACED>",
-                    "name":"<REPLACED>",
-					"authorization":[],
-					"data": "<REPLACED>"
-				}
-			],
-             "context_free_actions":[],
-             "context_free_data":[],
-             "delay_sec":10,
-             "expiration":"<REPLACED>",
-             "max_cpu_usage_ms":0,
-             "max_net_usage_words":0,
-             "ref_block_num":0,
-             "ref_block_prefix":0,
-             "transaction_extensions":[]
+            "actions": [],
+            "context_free_actions":[],
+            "context_free_data":[],
+            "delay_sec":10,
+            "expiration":"<REPLACED>",
+            "max_cpu_usage_ms":0,
+            "max_net_usage_words":0,
+            "ref_block_num":0,
+            "ref_block_prefix":0,
+            "transaction_extensions":[]
 		}
 	)", tnx_json);
 }
@@ -198,23 +191,19 @@ void get_transaction_smart_contract_abi(std::string api_url, std::string contact
 		}
 	}
 }
-void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes,
-				   std::string &smart_contract_abi)
+
+void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
 {
 	DEBUG("Retrieving node data");
 	auto last_irreversible_block_num = get_node_info(api_url, tnx_json, chain_id, chain_id_bytes);
 	get_last_block_info(api_url, tnx_json, last_irreversible_block_num);
     
-    std::string contract_name = tnx_json["actions"][0]["account"];
-	get_transaction_smart_contract_abi(api_url, contract_name, smart_contract_abi);
 	DEBUG("Done");
 }
 
-void build_transaction_action_binary(abieos_context *context, json &tnx_json, std::string smart_contract_abi, nlohmann::json data)
+const char* build_transaction_action_binary(abieos_context *context, std::string contract_name, std::string action, std::string smart_contract_abi, nlohmann::json data)
 {
 	DEBUG("Building action data binary");
-    std::string contract_name = tnx_json["actions"][0]["account"];
-    std::string action = tnx_json["actions"][0]["name"];
     
     uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, contract_name.c_str()));
 	check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, smart_contract_abi.c_str()));
@@ -222,7 +211,7 @@ void build_transaction_action_binary(abieos_context *context, json &tnx_json, st
     
 	check_context(context, __LINE__, __FILE__,
 				  abieos_json_to_bin_reorderable(context, contract, action.c_str(), data.dump().c_str()));
-	tnx_json["actions"][0]["data"] = check_context(context, __LINE__, __FILE__, abieos_get_bin_hex(context));
+	return check_context(context, __LINE__, __FILE__, abieos_get_bin_hex(context));
 	DEBUG("Done");
 }
 
@@ -358,6 +347,7 @@ void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &
     }
     )";
     
+    std::cout << "TRX:" << tnx_json.dump().c_str() << std::endl;
     
 	transaction_contract =
 		check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
@@ -451,16 +441,13 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 }
 void build_transaction(abieos_context *context,
                        json &tnx_json,
-                       std::string smart_contract_abi,
 					   uint64_t &transaction_contract,
                        char *&packed_tnx,
                        int &packed_tnx_size,
 					   SECP256K1_API::secp256k1_context *ctx,
                        std::vector<std::string> priv_key_bytes_vector,
-					   unsigned char *chain_id_bytes,
-                       nlohmann::json data)
+					   unsigned char *chain_id_bytes)
 {
-	build_transaction_action_binary(context, tnx_json, smart_contract_abi, data);
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
     
     // Add singatures
