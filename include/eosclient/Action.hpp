@@ -14,11 +14,18 @@
 namespace onikami {
 namespace eosclient {
 
+class Authorization {
+public:
+    std::string actor;
+    std::string permission;
+};
+
 class Action {
 public:
     std::string account;
     std::string name;
     nlohmann::json data;
+    std::vector<Authorization> authorization;
 };
 
 }

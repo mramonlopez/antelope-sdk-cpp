@@ -65,9 +65,9 @@ std::string EOSClient::action(std::vector<Action> actions) {
         act["name"] = action.name;
         act["authorization"] = json::array();
         
-        for (auto a : this->authorizers_) {
+        for (auto a : action.authorization) {
             json auth;
-            auth["actor"] = a.account;
+            auth["actor"] = a.actor;
             auth["permission"] = a.permission;
             
             act["authorization"].push_back(auth);

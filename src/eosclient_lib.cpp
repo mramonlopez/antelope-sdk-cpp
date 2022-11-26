@@ -347,7 +347,7 @@ void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &
     }
     )";
     
-    std::cout << tnx_json.dump().c_str() << std::endl;
+    std::cout << "TRX:" << tnx_json.dump().c_str() << std::endl;
     
 	transaction_contract =
 		check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
