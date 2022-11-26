@@ -18,6 +18,9 @@ class Authorization {
 public:
     std::string actor;
     std::string permission;
+    
+    inline Authorization(std::string actor, std::string permission) :
+        actor(actor), permission(permission) {}
 };
 
 class Action {
