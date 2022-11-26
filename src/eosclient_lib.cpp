@@ -27,6 +27,10 @@
 
 #include <eosclient/eosclient_lib.h>
 #include <eosclient/eosclient_func.h>
+#include <eosclient/Hash.hpp>
+#include <eosclient/types.hpp>
+
+using namespace onikami::eosclient;
 
 /**
  * This is the bitcoin base58check
@@ -34,14 +38,19 @@
 std::string base58check(std::string data)
 {
 	// Verifiable with "hello world" -> "3vQB7B6MrGQZaxCuFg4oh"
-	std::string data_sha256 = sha256Data(data);
-	std::string data_checksum = sha256Data(data_sha256); // checksum is sha256Data(sha256Data(data))[0:4]
+    Buffer data_sha256;
+    Buffer data_checksum;
+    
+    Hash::SHA256(toBuffer(data), data_sha256);
+    Hash::SHA256(data_sha256, data_checksum); // checksum is SHA256(SHA256(data))[0:4]
+    
 	std::string data_with_checksum = data;
 	// concat 4 bytes
 	data_with_checksum += data_checksum[0];
 	data_with_checksum += data_checksum[1];
 	data_with_checksum += data_checksum[2];
 	data_with_checksum += data_checksum[3];
+    
 	std::string data_base58check_str = eosio::to_base58((const char *)data_with_checksum.c_str(),
 														data_with_checksum.size()); // convert to base58
 	return data_base58check_str;
@@ -67,18 +76,13 @@ void init_transaction_json(json &tnx_json)
 				{
 					"account":"<REPLACED>",
                     "name":"<REPLACED>",
-					"authorization":[
-						{
-							"actor":"<REPLACED>",
-							"permission":"active"
-						}
-					],
+					"authorization":[],
 					"data": "<REPLACED>"
 				}
 			],
              "context_free_actions":[],
              "context_free_data":[],
-             "delay_sec":0,
+             "delay_sec":10,
              "expiration":"<REPLACED>",
              "max_cpu_usage_ms":0,
              "max_net_usage_words":0,
@@ -374,19 +378,18 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	// Good signature (recoverable & canonical secp256k1 sig):
 	DEBUG("Building signature");
 	//build data that need to be signed:
-	std::vector<unsigned char> signature_feed;
+	
+    Buffer signature_feed;
+    
 	for (int i = 0; i < HASH_SHA256_SIZE; i++)		 //always 32 bytes because sha256
 		signature_feed.push_back(chain_id_bytes[i]); //add chain id
 	for (int i = 0; i < packed_tnx_size; i++)
 		signature_feed.push_back(packed_tnx[i]); //add packed_tnx
 	for (int i = 0; i < HASH_SHA256_SIZE; i++)	 //always 32 bytes because sha256
 		signature_feed.push_back(0);			 //add contextFreeData
-
-	std::string signature_feed_sha256 = sha256Data(signature_feed, true);
-	unsigned char signature_feed_sha256_bytes[HASH_SHA256_SIZE];
-	
-    auto bytesString = fromHexStr(signature_feed_sha256);
-    strncpy((char *)signature_feed_sha256_bytes, &bytesString[0], HASH_SHA256_SIZE);
+    
+    Buffer signature_feed_sha256_bytes;
+    Hash::SHA256(signature_feed, signature_feed_sha256_bytes);
 
 	//build signature object:
 	SECP256K1_API::secp256k1_ecdsa_recoverable_signature recoverable_signature;
@@ -399,7 +402,7 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	{
 		// make new signature while canonical is false
 		CHECK(SECP256K1_API::secp256k1_ecdsa_sign_recoverable(ctx, &recoverable_signature,
-															  signature_feed_sha256_bytes, priv_key_bytes, NULL,
+															  &signature_feed_sha256_bytes[0], priv_key_bytes, NULL,
 															  &loops) == 1);
 		CHECK(SECP256K1_API::secp256k1_ecdsa_recoverable_signature_serialize_compact(
 				  ctx, recoverable_signature_serilized, &recover_id, &recoverable_signature) == 1);
@@ -418,9 +421,10 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	}
 	checksum_data.push_back('K');
 	checksum_data.push_back('1');
-	std::string checksum_data_str(checksum_data.begin(), checksum_data.end());
-	std::string checksum = RIPEMD160Data(checksum_data_str);
-	char const *checksum_char = checksum.c_str();
+    
+    Buffer checksum;
+    Hash::RIPEMD160(checksum_data, checksum);
+    
 	// build the final signature that will be passed in base58
 	std::vector<unsigned char> base58_data;
 	base58_data.push_back(recover_id_2); // add recovery id
@@ -429,10 +433,10 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 		base58_data.push_back(recoverable_signature_serilized[i]); // add signature (r & s)
 	}
 	// add the 4 bytes checksum
-	base58_data.push_back(checksum_char[0]);
-	base58_data.push_back(checksum_char[1]);
-	base58_data.push_back(checksum_char[2]);
-	base58_data.push_back(checksum_char[3]);
+	base58_data.push_back(checksum[0]);
+	base58_data.push_back(checksum[1]);
+	base58_data.push_back(checksum[2]);
+	base58_data.push_back(checksum[3]);
 
 	std::string base58_data_str(base58_data.begin(),
 								base58_data.end()); // to string
@@ -452,27 +456,33 @@ void build_transaction(abieos_context *context,
                        char *&packed_tnx,
                        int &packed_tnx_size,
 					   SECP256K1_API::secp256k1_context *ctx,
-                       unsigned char *priv_key_bytes,
+                       std::vector<std::string> priv_key_bytes_vector,
 					   unsigned char *chain_id_bytes,
                        nlohmann::json data)
 {
 	build_transaction_action_binary(context, tnx_json, smart_contract_abi, data);
 	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
-	build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
+    
+    // Add singatures
+    for(auto bytesString : priv_key_bytes_vector) {
+        unsigned char *priv_key_bytes = (unsigned char *) &bytesString[0];
+        
+        build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
+    }
 }
 
 
 std::string send_transaction(std::string api_url,
                       json &tnx_json,
                       abieos_context *context,
-                      uint64_t transaction_contract,
-					  std::string eos_signature_str)
+                      uint64_t transaction_contract)
 {
+    std::string response;
+    std::string signatures = tnx_json["signatures"].dump();
+        
 	// send the transaction
 	DEBUG("Sending transaction");
     DEBUG(tnx_json.dump().c_str());
-    
-    std::string response;
     
     // pack  transaction with signature before push
     check_context(context, __LINE__, __FILE__,
@@ -487,10 +497,12 @@ std::string send_transaction(std::string api_url,
     std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
     std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
 
-    CHECK(sendData("{\"signatures\":[\"" + eos_signature_str +
-                       "\"], \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
-                       packed_tnx_2_hex + "\"}",
-                   api_url + "/chain/push_transaction", response, CURL_IS_VERBOSE) == 1);
+    std::string data = "{\"signatures\":" + signatures +
+    ", \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
+    packed_tnx_2_hex + "\"}";
+    
+    std::cout << std::endl << data << std::endl << std::endl;
+    CHECK(sendData(data, api_url + "/chain/push_transaction", response, CURL_IS_VERBOSE) == 1);
     
     DEBUG("Done");
     
@@ -517,3 +529,4 @@ void history_get_transaction(std::string api_url, json &tnx_json, std::string tr
     CHECK(parseJSON(response, tnx_json) == 1);
     std::cout << tnx_json.dump(1) << std::endl;
 }
+    

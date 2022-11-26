@@ -29,3 +29,4 @@ client->action("helloword", "hi", data);
 
 ## Tested platforms
 - iOS + Cocos2d-x
+- Android + Cocos2d-x

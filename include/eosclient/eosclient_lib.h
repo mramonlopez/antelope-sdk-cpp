@@ -60,11 +60,10 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
                      unsigned char *chain_id_bytes, char *packed_tnx, int packed_tnx_size);
 void build_transaction(abieos_context *context, json &tnx_json, std::string smart_contract_abi,
                        uint64_t &transaction_contract, char *&packed_tnx, int &packed_tnx_size,
-                       SECP256K1_API::secp256k1_context *ctx, unsigned char *priv_key_bytes,
+                       SECP256K1_API::secp256k1_context *ctx, std::vector<std::string> priv_key_bytes_vector,
                        unsigned char *chain_id_bytes,
                        nlohmann::json data);
-std::string send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract,
-                      std::string eos_signature_str);
+std::string send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract);
 
 void history_get_transaction(std::string api_url, json &tnx_json, std::string transaction_id, uint64_t blockNumHint);
 
