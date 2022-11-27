@@ -71,3 +71,10 @@ target_include_directories(${LIB_NAME} PUBLIC
 	${CURL_INCLUDE_DIR}
 	${json_SOURCE_DIR}/include
 )
+
+set_target_properties(${LIB_NAME}
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    FOLDER "Internal"
+)

@@ -485,7 +485,7 @@ std::string send_transaction(std::string api_url,
     std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
 
     std::string data = "{\"signatures\":" + signatures +
-    ", \"compression\":none,\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
+    ", \"compression\":\"none\",\"packed_context_free_data\":\"\",\"packed_trx\":\"" +
     packed_tnx_2_hex + "\"}";
     
     std::cout << std::endl << data << std::endl << std::endl;

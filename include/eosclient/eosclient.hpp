@@ -33,9 +33,12 @@ public:
     
     std::string action(std::vector<Action> actions);
     std::string getTransactionState(std::string transaction_id, uint64_t blockNumHint);
-    std::string getPublicKey();
-    bool createKeyPair(std::string &priv_key, std::string &pub_key);
+    
     inline std::string getApiURL() const { return api_url_; }
+    
+    std::string getPublicKey();
+    static bool createKeyPair(std::string &priv_key, std::string &pub_key);
+    
 private:
     
     std::string api_url_;
