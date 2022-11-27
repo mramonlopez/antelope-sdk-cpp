@@ -107,8 +107,10 @@ std::string EOSClient::action(std::vector<Action> actions) {
     std::string transaction_id = response_json["transaction_id"].is_null() ? "" : response_json["transaction_id"];
     uint64_t block = 0;
     
+    std::cout << "response: " << response_json.dump(1) << std::endl;
+    
     if (transaction_id == "") {
-        std::cout << "response: " << response_json.dump(1) << std::endl;
+
         if (response_json.contains("error") &&
             response_json["error"].contains("details") &&
             response_json["error"]["details"].is_array()) {

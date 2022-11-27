@@ -75,7 +75,7 @@ void init_transaction_json(json &tnx_json)
             "actions": [],
             "context_free_actions":[],
             "context_free_data":[],
-            "delay_sec":10,
+            "delay_sec":0,
             "expiration":"<REPLACED>",
             "max_cpu_usage_ms":0,
             "max_net_usage_words":0,
