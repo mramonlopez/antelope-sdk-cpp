@@ -32,6 +32,7 @@ set(SOURCE_FILES
     src/base58.cpp
     src/Hash.cpp
     src/types.cpp
+    src/EosioSigningRequest.cpp
 )
 
 set(HEADER_FILES
@@ -42,6 +43,7 @@ set(HEADER_FILES
     include/eosclient/Hash.hpp
     include/eosclient/types.hpp
     include/eosclient/Action.hpp
+    include/eosclient//EosioSigningRequest.hpp
 )
 
 source_group(src FILES ${SOURCE_FILES})

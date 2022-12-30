@@ -34,3 +34,49 @@ std::string onikami::eosclient::toHexString(Buffer buffer) {
     
     return hex;
 }
+
+std::string onikami::eosclient::toBase64String(Buffer buffer) {
+    const std::string charset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+    
+    unsigned int char_count;
+    unsigned int bits;
+    unsigned int input_idx = 0;
+    
+    std::string output = "";
+    
+    char_count = 0;
+    bits = 0;
+    
+    for( input_idx=0; input_idx < buffer.size() ; input_idx++ ) {
+        bits |= buffer[ input_idx ];
+        
+        char_count++;
+        if (char_count == 3) {
+            output += charset[(bits >> 18) & 0x3f];
+            output += charset[(bits >> 12) & 0x3f];
+            output += charset[(bits >> 6) & 0x3f];
+            output += charset[bits & 0x3f];
+            bits = 0;
+            char_count = 0;
+        } else {
+            bits <<= 8;
+        }
+    }
+    
+    if (char_count) {
+        if (char_count == 1) {
+            bits <<= 8;
+        }
+
+        output += charset[(bits >> 18) & 0x3f];
+        output += charset[(bits >> 12) & 0x3f];
+        if (char_count > 1) {
+            output += charset[(bits >> 6) & 0x3f];
+        } else {
+            output += '=';
+        }
+        output += '=';
+    }
+    
+    return output;
+}

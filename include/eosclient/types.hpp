@@ -22,6 +22,7 @@ Buffer toBuffer(std::string str);
 Buffer toBuffer(unsigned char *c, size_t size);
 std::string toString(Buffer buffer);
 std::string toHexString(Buffer buffer);
+std::string toBase64String(Buffer buffer);
 
 } // eosclient
 } // onikami
