@@ -40,7 +40,6 @@ public:
     static bool createKeyPair(std::string &priv_key, std::string &pub_key);
     
 private:
-    
     std::string api_url_;
     std::vector<Authorizer> authorizers_;
 };

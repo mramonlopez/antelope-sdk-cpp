@@ -25,8 +25,8 @@
 #include <eosio/varint.hpp>
 #include <eosio/abieos.h>
 
-#include <eosclient/eosclient_lib.h>
-#include <eosclient/eosclient_func.h>
+#include <eosclient/eosclient_lib.hpp>
+#include <eosclient/eosclient_func.hpp>
 #include <eosclient/Hash.hpp>
 #include <eosclient/types.hpp>
 

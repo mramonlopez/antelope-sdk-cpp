@@ -6,7 +6,7 @@
 //
 
 #include <eosclient/eosclient.hpp>
-#include <eosclient/eosclient_lib.h>
+#include <eosclient/eosclient_lib.hpp>
 #include <eosclient/base58.hpp>
 #include <eosclient/types.hpp>
 #include <iostream>
@@ -56,26 +56,15 @@ std::string EOSClient::action(std::vector<Action> actions) {
 
     for(auto action : actions) {
         std::string smart_contract_abi;
-        
         get_transaction_smart_contract_abi(api_url_, action.account, smart_contract_abi);
+        action.abi = smart_contract_abi;
         
-        json act;
+        json j;
         
-        act["account"] = action.account;
-        act["name"] = action.name;
-        act["authorization"] = json::array();
+        to_json(j, action);
+        std::cout << j.dump() << std::endl;
         
-        for (auto a : action.authorization) {
-            json auth;
-            auth["actor"] = a.actor;
-            auth["permission"] = a.permission;
-            
-            act["authorization"].push_back(auth);
-        }
-        
-        act["data"] = std::string(build_transaction_action_binary(context, action.account, action.name, smart_contract_abi, action.data));
-        
-        tnx_json["actions"].push_back(act);
+        tnx_json["actions"].push_back(j);
         
         std::cout << "ACTION: " << act << std::endl;
     }

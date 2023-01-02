@@ -10,6 +10,7 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
+#include <eosclient/PermissionLevel.hpp>
 
 namespace onikami {
 namespace eosclient {
@@ -25,12 +26,17 @@ public:
 
 class Action {
 public:
-    std::string account;
-    std::string name;
+    std::string account = "";
+    std::string name = "";
     nlohmann::json data;
-    std::vector<Authorization> authorization;
+    std::vector<PermissionLevel> authorization;
+    std::string abi = "";
 };
+
+void to_json(nlohmann::json& j, const Action& a);
+void from_json(const nlohmann::json& j, Action& a);
 
 }
 }
+
 #endif /* Action_hpp */

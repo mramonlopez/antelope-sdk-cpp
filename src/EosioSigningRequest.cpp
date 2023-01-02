@@ -42,13 +42,15 @@ std::string EosioSigningRequest::encode(bool compress, bool slashes) {
     out[0] = header;
     out.insert(out.end(), buffer.begin(), buffer.end());
     
-    std::string scheme = slashes ? "esr:////" : "esr:";
+    std::string scheme = slashes ? "esr://" : "esr:";
     
     return scheme + toBase64String(out);
 }
 
 
 Buffer EosioSigningRequest::getData() {
+    // return Serializer.encode({object: this.data}).array
+    
     return toBuffer("Esto es una prueba");
 }
 

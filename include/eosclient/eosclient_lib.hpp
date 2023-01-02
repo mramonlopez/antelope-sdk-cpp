@@ -8,9 +8,10 @@
 #ifndef eosclient_lib_h
 #define eosclient_lib_h
 
-#include <eosclient/eosclient_func.h>
+#include <eosclient/eosclient_func.hpp>
 #include <eosio/abieos.h>
-
+#include <iostream>
+ 
 //Crypto and hashing stuff:
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>

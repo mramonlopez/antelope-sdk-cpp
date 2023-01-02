@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(eosclient VERSION 0.1 LANGUAGES CXX C)
 set(LIB_NAME eosclient)
@@ -37,13 +38,13 @@ set(SOURCE_FILES
 
 set(HEADER_FILES
     include/eosclient/eosclient.hpp
-	include/eosclient/eosclient_func.h
-	include/eosclient/eosclient_lib.h
+	include/eosclient/eosclient_func.hpp
+	include/eosclient/eosclient_lib.hpp
     include/eosclient/base58.hpp
     include/eosclient/Hash.hpp
     include/eosclient/types.hpp
     include/eosclient/Action.hpp
-    include/eosclient//EosioSigningRequest.hpp
+    include/eosclient/EosioSigningRequest.hpp
 )
 
 source_group(src FILES ${SOURCE_FILES})
@@ -65,6 +66,8 @@ target_link_libraries(${LIB_NAME} PUBLIC
     ${EOSCLIENT_OPENSSL_CRYPTO_NAME}
 	${EOSCLIENT_CURL_NAME}
 )
+
+target_compile_features(${LIB_NAME} PRIVATE cxx_std_17)
 
 target_include_directories(${LIB_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
