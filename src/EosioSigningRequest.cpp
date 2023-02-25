@@ -84,8 +84,13 @@ Buffer EosioSigningRequest::getData() {
     out.push_back(variant_idx);
     out.insert(out.end(), data.begin(), data.end());
     
-    out.push_back(this->data_.flags); // broadcast
-    out.push_back(0x00); // callback
+    // Flags
+    out.push_back(this->data_.flags); // broadcast, etc
+    
+    // Callback
+    out.push_back(this->data_.callback.size()); // callback size
+    out.insert(out.end(), this->data_.callback.begin(), this->data_.callback.end());
+    
     out.push_back(0x00); // info
     
     return out;

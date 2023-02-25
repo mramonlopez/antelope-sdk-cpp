@@ -29,17 +29,22 @@ public:
     std::vector<Action> actions;
     std::vector<TransactionExtension> transaction_extensions;
     
-    time_t expiration;
+    time_t expiration = 0;
+    
     /** *Specifies a block num in the last 2^16 blocks. */
-    uint16_t ref_block_num;
+    uint16_t ref_block_num  = 0;
+    
     /** Specifies the lower 32 bits of the block id. */
-    uint32_t ref_block_prefix;
+    uint32_t ref_block_prefix = 0;
+    
     /** Upper limit on total network bandwidth (in 8 byte words) billed for this transaction. */
-    uint8_t max_net_usage_words;
+    uint8_t max_net_usage_words = 0;
+    
     /** Upper limit on the total CPU time billed for this transaction. */
-    uint8_t max_cpu_usage_ms;
+    uint8_t max_cpu_usage_ms = 0;
+    
     /** Number of seconds to delay this transaction for during which it may be canceled. */
-    uint32_t delay_sec;
+    uint32_t delay_sec = 0;
     
     Buffer context_free_data;
     

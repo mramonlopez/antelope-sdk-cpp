@@ -29,10 +29,10 @@ public:
     static const uint8_t BROADCAST = 1 << 0;
     static const uint8_t BACKGROUND = 1 << 1;
     
-    std::string chain_id;
+    std::string chain_id = "";
     RequestVariantV2 req;
-    uint8_t flags;
-    std::string callback;
+    uint8_t flags = 0;
+    std::string callback = "";
     std::map<std::string, Buffer> info;
 };
 
