@@ -15,6 +15,8 @@
 #include <chrono>
 #include <stdio.h>
 #include <ctime>
+#include <sstream>
+
 
 #include <eosio/abi.hpp>
 #include <eosio/crypto.hpp>
@@ -91,7 +93,7 @@ void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ct
 	SECP256K1_API::secp256k1_context_destroy(ctx);
 }
 
-uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes) {
+json get_node_info(std::string api_url, std::string &chain_id, unsigned char *chain_id_bytes) {
 	// first get EOS node info
 	std::string response;
 	json response_json;
@@ -119,17 +121,25 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
     auto bytesString = fromHexStr(chain_id);
     strncpy((char *)chain_id_bytes, &bytesString[0], 32);
     
-    printf("HEX2: %.*s\n", HASH_SHA256_SIZE, chain_id_bytes);
+    return response_json;
+}
 
-	std::uint64_t last_irreversible_block_num = response_json["last_irreversible_block_num"].get<std::uint64_t>();
-   
-    tnx_json["ref_block_num"] = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
+json get_last_block_info(std::string api_url, uint64_t last_irreversible_block_num)
+{
+	// next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
+	std::string response;
+	json response_json;
+	CHECK(sendData("{\"block_num_or_id\":\"" + std::to_string(last_irreversible_block_num) + "\"}",
+				   api_url + "/chain/get_block", response, CURL_IS_VERBOSE) == 1);
+	CHECK(parseJSON(response, response_json) == 1);
     
-    std::string tmp_exp = response_json["head_block_time"].get<std::string>();
-	
+    return response_json;
+}
+
+std::string get_expiration_date_string(std::string date, int minutes_to_expire) {
     int year, month, day, hour, minute, second, tail = 0;
     
-    check(7 == sscanf(tmp_exp.c_str(), "%d-%d-%dT%d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &tail));
+    check(7 == sscanf(date.c_str(), "%d-%d-%dT%d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &tail));
     
     tm t;
     
@@ -137,7 +147,7 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
     t.tm_mon = month - 1;
     t.tm_mday = day;
     t.tm_hour = hour;
-    t.tm_min = minute + 6;
+    t.tm_min = minute + minutes_to_expire;
     t.tm_sec = second;
     t.tm_isdst = -1;
     
@@ -146,24 +156,31 @@ uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_i
     char buffer [80];
     strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.500", &t);
 
-    tnx_json["expiration"] = std::string(buffer);
-        
-    return last_irreversible_block_num;
+    return std::string(buffer);
 }
 
-void get_last_block_info(std::string api_url, json &tnx_json, uint64_t last_irreversible_block_num)
-{
-	// next: get the last block info to retrieve : chain_id, block_num, block_prefix, expiration
-	std::string response;
-	json response_json;
-	CHECK(sendData("{\"block_num_or_id\":\"" + std::to_string(last_irreversible_block_num) +
-					   "\"}",
-				   api_url + "/chain/get_block", response, CURL_IS_VERBOSE) == 1);
-	CHECK(parseJSON(response, response_json) == 1);
-    std::cout << response_json.dump(1) << std::endl;
-
-	std::uint32_t ref_block_prefix = response_json["ref_block_prefix"].get<std::uint32_t>();
-	tnx_json["ref_block_prefix"] = ref_block_prefix;
+time_t parse_date_string(std::string date) {
+    int year, month, day, hour, minute, second, tail = 0;
+    
+    check(7 == sscanf(date.c_str(), "%d-%d-%dT%d:%d:%d.%d", &year, &month, &day, &hour, &minute, &second, &tail));
+    
+    tm t = {};
+    
+    t.tm_year = year - 1900;
+    t.tm_mon = month - 1;
+    t.tm_mday = day;
+    t.tm_hour = hour;
+    t.tm_min = minute;
+    t.tm_sec = second;
+    t.tm_isdst = 0;
+    
+#if defined(_WIN32)
+    auto timestamp = _mkgmtime(&t)
+#else // Assume POSIX
+    auto timestamp = timegm(&t);
+#endif
+    
+    return timestamp;
 }
 
 void get_transaction_smart_contract_abi(std::string api_url, std::string contact_name, std::string &smart_contract_abi)
@@ -195,24 +212,33 @@ void get_transaction_smart_contract_abi(std::string api_url, std::string contact
 void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes)
 {
 	DEBUG("Retrieving node data");
-	auto last_irreversible_block_num = get_node_info(api_url, tnx_json, chain_id, chain_id_bytes);
-	get_last_block_info(api_url, tnx_json, last_irreversible_block_num);
+	auto node_info = get_node_info(api_url, chain_id, chain_id_bytes);
+    std::uint64_t last_irreversible_block_num = node_info["last_irreversible_block_num"].get<std::uint64_t>();
+    std::string head_block_time = node_info["head_block_time"].get<std::string>();
+    
+	auto last_block_info = get_last_block_info(api_url, last_irreversible_block_num);
+    
+    tnx_json["ref_block_num"] = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
+    tnx_json["expiration"] = get_expiration_date_string(head_block_time, 6);
+    tnx_json["ref_block_prefix"] = last_block_info["ref_block_prefix"].get<std::uint32_t>();
     
 	DEBUG("Done");
 }
 
 const char* build_transaction_action_binary(abieos_context *context, std::string contract_name, std::string action, std::string smart_contract_abi, nlohmann::json data)
 {
-	DEBUG("Building action data binary");
-    
+    /*
+     uint64_t contract = abieos_string_to_name(context, contract_name.c_str());
+     abieos_set_abi(context, contract, smart_contract_abi.c_str());
+     abieos_json_to_bin_reorderable(context, contract, action.c_str(), data.dump().c_str());
+     return abieos_get_bin_hex(context);
+     */
     uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, contract_name.c_str()));
 	check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, smart_contract_abi.c_str()));
-    
     
 	check_context(context, __LINE__, __FILE__,
 				  abieos_json_to_bin_reorderable(context, contract, action.c_str(), data.dump().c_str()));
 	return check_context(context, __LINE__, __FILE__, abieos_get_bin_hex(context));
-	DEBUG("Done");
 }
 
 void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &transaction_contract, char *&packed_tnx,
@@ -475,12 +501,19 @@ std::string send_transaction(std::string api_url,
     check_context(context, __LINE__, __FILE__,
                   abieos_json_to_bin_reorderable(context, transaction_contract, "transaction",
                                                  tnx_json.dump().c_str()));
-    const char *signed_packed_tnx =
-        check_context(context, __LINE__, __FILE__,
-                      abieos_get_bin_data(context)); // use abieos_get_bin_hex for hex
+    
+    const char *signed_packed_tnx = check_context(context, __LINE__, __FILE__, abieos_get_bin_data(context)); // use abieos_get_bin_hex for hex
     int signed_packed_tnx_size = abieos_get_bin_size(context);
+    
+    std::cout << std::endl << toBase64UString(
+                    toBuffer((unsigned char *) signed_packed_tnx,
+                    (size_t)signed_packed_tnx_size)) << std::endl;
+    
     std::vector<unsigned char> packed_tnx_vec_2(signed_packed_tnx,
                                                 signed_packed_tnx + signed_packed_tnx_size);
+    
+    
+    
     std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
     std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());
 

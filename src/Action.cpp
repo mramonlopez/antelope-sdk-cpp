@@ -12,6 +12,18 @@
 using namespace onikami::eosclient;
 using json = nlohmann::json;
 
+const char* Action::serialize() {
+    abieos_context *context = check(abieos_create());
+    
+    uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context,this->account.c_str()));
+    check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, this->abi.c_str()));
+    
+    
+    check_context(context, __LINE__, __FILE__,
+                  abieos_json_to_bin_reorderable(context, contract, this->name.c_str(), data.dump().c_str()));
+    return check_context(context, __LINE__, __FILE__, abieos_get_bin_data(context));
+}
+
 void onikami::eosclient::to_json(nlohmann::json& j, const Action& a) {
     j = json();
     

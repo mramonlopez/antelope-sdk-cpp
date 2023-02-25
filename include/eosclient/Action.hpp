@@ -31,6 +31,8 @@ public:
     nlohmann::json data;
     std::vector<PermissionLevel> authorization;
     std::string abi = "";
+    
+    const char* serialize();
 };
 
 void to_json(nlohmann::json& j, const Action& a);

@@ -9,22 +9,27 @@
 #define Transaction_h
 
 #include <eosclient/Action.hpp>
+#include <eosclient/types.hpp>
 
 namespace onikami {
 namespace eosclient {
 
 class TransactionExtension {
+public:
     uint16_t type;
     Buffer data;
 };
 
 class Transaction {
+private:
+    static const std::string transactionAbi_str;
+    
 public:
     std::vector<Action> context_free_actions;
     std::vector<Action> actions;
     std::vector<TransactionExtension> transaction_extensions;
     
-    uint32_t expiration;
+    time_t expiration;
     /** *Specifies a block num in the last 2^16 blocks. */
     uint16_t ref_block_num;
     /** Specifies the lower 32 bits of the block id. */
@@ -35,7 +40,17 @@ public:
     uint8_t max_cpu_usage_ms;
     /** Number of seconds to delay this transaction for during which it may be canceled. */
     uint32_t delay_sec;
+    
+    Buffer context_free_data;
+    
+    Buffer getPackedData();
 };
+
+void to_json(nlohmann::json& j, const Transaction& t);
+void from_json(const nlohmann::json& j, Transaction& t);
+
+void to_json(nlohmann::json& j, const TransactionExtension& e);
+void from_json(const nlohmann::json& j, TransactionExtension& e);
 
 }}
 

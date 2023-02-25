@@ -20,9 +20,11 @@ typedef std::vector<unsigned char> Buffer;
 
 Buffer toBuffer(std::string str);
 Buffer toBuffer(unsigned char *c, size_t size);
+Buffer toBufferFromHex(std::string str);
 std::string toString(Buffer buffer);
 std::string toHexString(Buffer buffer);
-std::string toBase64String(Buffer buffer);
+std::string toBase64String(Buffer buffer, const std::string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+std::string toBase64UString(Buffer buffer);
 
 } // eosclient
 } // onikami

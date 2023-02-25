@@ -50,7 +50,8 @@ private:
     RequestDataV2 data_;
 };
 
-
+void to_json(nlohmann::json& j, const RequestDataV2& r);
+void from_json(const nlohmann::json& j, RequestDataV2& r);
 
 }
 }

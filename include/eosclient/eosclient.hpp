@@ -8,7 +8,7 @@
 #ifndef eosclient_hpp
 #define eosclient_hpp
 
-#include <eosclient/Action.hpp>
+#include <eosclient/Transaction.hpp>
 #include <iostream>
 #include <string>
 
@@ -31,7 +31,7 @@ class EOSClient {
 public:
     EOSClient(std::string api_url, std::vector<Authorizer> authorizers);
     
-    std::string action(std::vector<Action> actions);
+    std::string sendTransaction(Transaction transaction);
     std::string getTransactionState(std::string transaction_id, uint64_t blockNumHint);
     
     inline std::string getApiURL() const { return api_url_; }
@@ -39,6 +39,8 @@ public:
     std::string getPublicKey();
     static bool createKeyPair(std::string &priv_key, std::string &pub_key);
     
+    Action* setABIAction(Action* action);
+
 private:
     std::string api_url_;
     std::vector<Authorizer> authorizers_;

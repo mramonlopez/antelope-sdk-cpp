@@ -34,6 +34,9 @@ set(SOURCE_FILES
     src/Hash.cpp
     src/types.cpp
     src/EosioSigningRequest.cpp
+    src/Action.cpp
+    src/Transaction.cpp
+    src/PermissionLevel.cpp
 )
 
 set(HEADER_FILES
@@ -43,7 +46,9 @@ set(HEADER_FILES
     include/eosclient/base58.hpp
     include/eosclient/Hash.hpp
     include/eosclient/types.hpp
+    include/eosclient/Transaction.hpp
     include/eosclient/Action.hpp
+    include/eosclient/PermissionLevel.hpp
     include/eosclient/EosioSigningRequest.hpp
 )
 

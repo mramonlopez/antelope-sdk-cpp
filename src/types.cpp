@@ -35,9 +35,34 @@ std::string onikami::eosclient::toHexString(Buffer buffer) {
     return hex;
 }
 
-std::string onikami::eosclient::toBase64String(Buffer buffer) {
-    const std::string charset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+Buffer onikami::eosclient::toBufferFromHex(std::string str) {
+    Buffer bytes;
     
+    for (unsigned int i = 0; i < str.length(); i += 2) {
+        char byte = (char) strtol(str.substr(i, 2).c_str(), nullptr, 16);
+        bytes.push_back(byte);
+    }
+
+    return bytes;
+}
+
+// An URL-safe version of Base64 where + is replaced by -, / by _ and the padding (=) is trimmed.
+std::string onikami::eosclient::toBase64UString(Buffer buffer) {
+    const std::string charset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
+    
+    auto out = toBase64String(buffer, charset);
+    
+    // Remove '='
+//    string s("hello $name");
+//    size_type pos = s.find( "$name" );
+//    if ( pos != string::npos ) {
+//       s.replace( pos, 5, "somename" );   // 5 = length( $name )
+//    }
+    
+    return out;
+}
+
+std::string onikami::eosclient::toBase64String(Buffer buffer, const std::string charset) {
     unsigned int char_count;
     unsigned int bits;
     unsigned int input_idx = 0;

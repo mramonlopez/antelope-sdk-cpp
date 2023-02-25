@@ -48,8 +48,11 @@ std::string base58check(std::string data);
 bool is_canonical(unsigned char *signature);
 void init_transaction_json(json &tnx_json);
 void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx);
-uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes);
-void get_last_block_info(std::string api_url, json &tnx_json);
+json get_node_info(std::string api_url, std::string &chain_id, unsigned char *chain_id_bytes);
+json get_last_block_info(std::string api_url, uint64_t last_irreversible_block_num);
+std::string get_expiration_date_string(std::string date, int minutes_to_expire);
+time_t parse_date_string(std::string date);
+
 void get_transaction_smart_contract_abi(std::string api_url, std::string contact_name, std::string &smart_contract_abi);
 void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes);
 
