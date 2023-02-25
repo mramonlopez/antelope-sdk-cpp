@@ -21,7 +21,12 @@ const char* Action::serialize() {
     
     check_context(context, __LINE__, __FILE__,
                   abieos_json_to_bin_reorderable(context, contract, this->name.c_str(), data.dump().c_str()));
-    return check_context(context, __LINE__, __FILE__, abieos_get_bin_data(context));
+    
+    auto data = check_context(context, __LINE__, __FILE__, abieos_get_bin_data(context));
+    
+    abieos_destroy(context);
+    
+    return data;
 }
 
 void onikami::eosclient::to_json(nlohmann::json& j, const Action& a) {

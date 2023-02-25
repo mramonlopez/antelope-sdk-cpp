@@ -32,6 +32,7 @@ public:
     std::vector<PermissionLevel> authorization;
     std::string abi = "";
     
+private:
     const char* serialize();
 };
 
