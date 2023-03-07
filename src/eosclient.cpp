@@ -33,11 +33,9 @@ EOSClient::EOSClient(std::string api_url, std::vector<Authorizer> authorizers) :
     
 
 std::string EOSClient::sendTransaction(Transaction transaction) {
-    SECP256K1_API::secp256k1_context *ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+    
     
     abieos_context *context = check(abieos_create());
-    char *packed_tnx; //buffer of 10000
-    int packed_tnx_size;
     uint64_t transaction_contract;
     
     std::string chain_id;
@@ -61,14 +59,11 @@ std::string EOSClient::sendTransaction(Transaction transaction) {
         priv_key_bytes_vector.push_back(bytesString);
     }
 
-    json tnx_json = json(transaction);
-    
-    build_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size, ctx,
-                      priv_key_bytes_vector, chain_id_bytes);
+    json tnx_json = build_transaction(context, &transaction, priv_key_bytes_vector, chain_id_bytes);
 
-    auto response = send_transaction(api_url_, tnx_json, context, transaction_contract);
+    auto response = send_transaction(api_url_, tnx_json, context);
     
-    clear_program(context, ctx);
+    abieos_destroy(context);
     
     json response_json;
     CHECK(parseJSON(response, response_json) == 1);

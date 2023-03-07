@@ -88,11 +88,6 @@ void init_transaction_json(json &tnx_json)
 	)", tnx_json);
 }
 
-void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx) {
-	abieos_destroy(context);
-	SECP256K1_API::secp256k1_context_destroy(ctx);
-}
-
 json get_node_info(std::string api_url, std::string &chain_id, unsigned char *chain_id_bytes) {
 	// first get EOS node info
 	std::string response;
@@ -225,175 +220,15 @@ void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, u
 	DEBUG("Done");
 }
 
-const char* build_transaction_action_binary(abieos_context *context, std::string contract_name, std::string action, std::string smart_contract_abi, nlohmann::json data)
+std::string build_signature(unsigned char *priv_key_bytes,
+					 unsigned char *chain_id_bytes, const Buffer &packed_tnx)
 {
-    /*
-     uint64_t contract = abieos_string_to_name(context, contract_name.c_str());
-     abieos_set_abi(context, contract, smart_contract_abi.c_str());
-     abieos_json_to_bin_reorderable(context, contract, action.c_str(), data.dump().c_str());
-     return abieos_get_bin_hex(context);
-     */
-    uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, contract_name.c_str()));
-	check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, smart_contract_abi.c_str()));
-    
-	check_context(context, __LINE__, __FILE__,
-				  abieos_json_to_bin_reorderable(context, contract, action.c_str(), data.dump().c_str()));
-	return check_context(context, __LINE__, __FILE__, abieos_get_bin_hex(context));
-}
-
-void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &transaction_contract, char *&packed_tnx,
-							  int &packed_tnx_size)
-{
-	// load tnx into the abi json->bin:
-	DEBUG("Building packed transaction");
-//	std::ifstream infile(
-//		"transaction.abi.json"); //abieos uses the transaction contract to build the packed transaction
-//	//Note:
-//	//A (smart) contract will have to same steps when building the contract action binary (it is based on the contract abi json)
-//	std::string transactionAbi_str =
-//		std::string((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
-    
-    std::string transactionAbi_str = R"(
-    {
-        "version": "eosio::abi/1.0",
-        "types": [
-            {
-                "new_type_name": "account_name",
-                "type": "name"
-            },
-            {
-                "new_type_name": "action_name",
-                "type": "name"
-            },
-            {
-                "new_type_name": "permission_name",
-                "type": "name"
-            }
-        ],
-        "structs": [
-            {
-                "name": "permission_level",
-                "base": "",
-                "fields": [
-                    {
-                        "name": "actor",
-                        "type": "account_name"
-                    },
-                    {
-                        "name": "permission",
-                        "type": "permission_name"
-                    }
-                ]
-            },
-            {
-                "name": "action",
-                "base": "",
-                "fields": [
-                    {
-                        "name": "account",
-                        "type": "account_name"
-                    },
-                    {
-                        "name": "name",
-                        "type": "action_name"
-                    },
-                    {
-                        "name": "authorization",
-                        "type": "permission_level[]"
-                    },
-                    {
-                        "name": "data",
-                        "type": "bytes"
-                    }
-                ]
-            },
-            {
-                "name": "extension",
-                "base": "",
-                "fields": [
-                    {
-                        "name": "type",
-                        "type": "uint16"
-                    },
-                    {
-                        "name": "data",
-                        "type": "bytes"
-                    }
-                ]
-            },
-            {
-                "name": "transaction_header",
-                "base": "",
-                "fields": [
-                    {
-                        "name": "expiration",
-                        "type": "time_point_sec"
-                    },
-                    {
-                        "name": "ref_block_num",
-                        "type": "uint16"
-                    },
-                    {
-                        "name": "ref_block_prefix",
-                        "type": "uint32"
-                    },
-                    {
-                        "name": "max_net_usage_words",
-                        "type": "varuint32"
-                    },
-                    {
-                        "name": "max_cpu_usage_ms",
-                        "type": "uint8"
-                    },
-                    {
-                        "name": "delay_sec",
-                        "type": "varuint32"
-                    }
-                ]
-            },
-            {
-                "name": "transaction",
-                "base": "transaction_header",
-                "fields": [
-                    {
-                        "name": "context_free_actions",
-                        "type": "action[]"
-                    },
-                    {
-                        "name": "actions",
-                        "type": "action[]"
-                    },
-                    {
-                        "name": "transaction_extensions",
-                        "type": "extension[]"
-                    }
-                ]
-            }
-        ]
-    }
-    )";
-    
-    transaction_contract =
-		check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
-	check_context(context, __LINE__, __FILE__,
-				  abieos_set_abi(context, transaction_contract, transactionAbi_str.c_str()));
-	check_context(context, __LINE__, __FILE__,
-				  abieos_json_to_bin_reorderable(context, transaction_contract, "transaction",
-												 tnx_json.dump().c_str()));
-
-	packed_tnx = (char *)check_context(context, __LINE__, __FILE__,
-									   abieos_get_bin_data(context)); // use abieos_get_bin_hex for hex
-	packed_tnx_size = abieos_get_bin_size(context);
-	DEBUG("Done");
-}
-void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsigned char *priv_key_bytes,
-					 unsigned char *chain_id_bytes, char *packed_tnx, int packed_tnx_size)
-{
-	// Good signature (recoverable & canonical secp256k1 sig):
 	DEBUG("Building signature");
-	//build data that need to be signed:
+	
+    SECP256K1_API::secp256k1_context *ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 	
     Buffer signature_feed;
+    auto packed_tnx_size = packed_tnx.size();
     
 	for (int i = 0; i < HASH_SHA256_SIZE; i++)		 //always 32 bytes because sha256
 		signature_feed.push_back(chain_id_bytes[i]); //add chain id
@@ -423,6 +258,8 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 		// std::cout << "Test canonical " << loops << " rec id: " << recover_id << std::endl;
 		loops++;
 	} while (is_canonical(recoverable_signature_serilized) == false);
+    
+    SECP256K1_API::secp256k1_context_destroy(ctx);
 
 	int recover_id_2 = 27 + 4 + recover_id;
 
@@ -457,36 +294,34 @@ void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsi
 	//69 = 1 + 64 + 4 bytes
 	std::string eos_signature_str = "SIG_K1_" + eosio::to_base58((const char *)base58_data_str.c_str(),
 																 69); // convert to base58
-	// DEBUG("EOS sig : ");
-	// DEBUG(eos_signature_str.c_str());
-	//set the signature
-	tnx_json["signatures"].push_back(eos_signature_str);
-	DEBUG("Done");
+    return eos_signature_str;
 }
-void build_transaction(abieos_context *context,
-                       json &tnx_json,
-					   uint64_t &transaction_contract,
-                       char *&packed_tnx,
-                       int &packed_tnx_size,
-					   SECP256K1_API::secp256k1_context *ctx,
-                       std::vector<std::string> priv_key_bytes_vector,
+
+json build_transaction(abieos_context *context,
+                       Transaction * transaction,
+					   std::vector<std::string> priv_key_bytes_vector,
 					   unsigned char *chain_id_bytes)
 {
-	build_packed_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size);
+    Buffer packed_tnx = transaction->getPackedData();
+    int packed_tnx_size;
     
-    // Add singatures
+    json tnx_json;
+    
+    // Add singatures of serializaed (packed) transaction
     for(auto bytesString : priv_key_bytes_vector) {
         unsigned char *priv_key_bytes = (unsigned char *) &bytesString[0];
         
-        build_signature(ctx, tnx_json, priv_key_bytes, chain_id_bytes, packed_tnx, packed_tnx_size);
+        auto signature = build_signature(priv_key_bytes, chain_id_bytes, packed_tnx);
+        
+        tnx_json["signatures"].push_back(signature);
     }
+    
+    return tnx_json;
 }
-
 
 std::string send_transaction(std::string api_url,
                       json &tnx_json,
-                      abieos_context *context,
-                      uint64_t transaction_contract)
+                      abieos_context *context)
 {
     std::string response;
     std::string signatures = tnx_json["signatures"].dump();
@@ -494,6 +329,12 @@ std::string send_transaction(std::string api_url,
 	// send the transaction
 	DEBUG("Sending transaction");
     DEBUG(tnx_json.dump().c_str());
+    
+    // Move to getName function
+    auto transaction_contract =
+        check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
+    check_context(context, __LINE__, __FILE__,
+                  abieos_set_abi(context, transaction_contract, Transaction::transactionAbi_str.c_str()));
     
     // pack  transaction with signature before push
     check_context(context, __LINE__, __FILE__,
@@ -509,8 +350,6 @@ std::string send_transaction(std::string api_url,
     
     std::vector<unsigned char> packed_tnx_vec_2(signed_packed_tnx,
                                                 signed_packed_tnx + signed_packed_tnx_size);
-    
-    
     
     std::vector<unsigned char> packed_tnx_vec_2_hex = convertBytesToHexStr(packed_tnx_vec_2);
     std::string packed_tnx_2_hex(packed_tnx_vec_2_hex.begin(), packed_tnx_vec_2_hex.end());

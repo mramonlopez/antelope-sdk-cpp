@@ -21,9 +21,6 @@ public:
 };
 
 class Transaction {
-private:
-    static const std::string transactionAbi_str;
-    
 public:
     std::vector<Action> context_free_actions;
     std::vector<Action> actions;
@@ -49,6 +46,8 @@ public:
     Buffer context_free_data;
     
     Buffer getPackedData();
+    
+    static const std::string transactionAbi_str;
 };
 
 void to_json(nlohmann::json& j, const Transaction& t);

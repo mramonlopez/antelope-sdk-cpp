@@ -18,6 +18,7 @@ Buffer Transaction::getPackedData() {
     abieos_context *context = check(abieos_create());
     
     // Add ABI contrat of "transaction" to context
+    // Move to getName function
     auto transaction_contract =
         check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, "transaction"));
     check_context(context, __LINE__, __FILE__,
