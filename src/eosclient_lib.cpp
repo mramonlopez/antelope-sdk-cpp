@@ -306,6 +306,7 @@ json build_transaction(abieos_context *context,
     int packed_tnx_size;
     
     json tnx_json;
+    to_json(tnx_json, *transaction);
     
     // Add singatures of serializaed (packed) transaction
     for(auto bytesString : priv_key_bytes_vector) {
