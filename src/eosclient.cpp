@@ -6,7 +6,7 @@
 //
 
 #include <eosclient/eosclient.hpp>
-#include <eosclient/eosclient_lib.h>
+#include <eosclient/eosclient_lib.hpp>
 #include <eosclient/base58.hpp>
 #include <eosclient/types.hpp>
 #include <iostream>
@@ -32,56 +32,25 @@ EOSClient::EOSClient(std::string api_url, std::vector<Authorizer> authorizers) :
         }
     
 
-std::string EOSClient::action(std::vector<Action> actions) {
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    std::chrono::steady_clock::time_point end;
-
-    json tnx_json; // final json of the tnx that will be sended
-    SECP256K1_API::secp256k1_context *ctx = SECP256K1_API::secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
-    
-    // Set the initial tnx values:
-    init_transaction_json(tnx_json);
+std::string EOSClient::sendTransaction(Transaction transaction) {
     
     
     abieos_context *context = check(abieos_create());
-    char *packed_tnx; //buffer of 10000
-    int packed_tnx_size;
     uint64_t transaction_contract;
-    std::string last_irreversible_block_num;
+    
     std::string chain_id;
     unsigned char chain_id_bytes[HASH_SHA256_SIZE];
 
-    end = std::chrono::steady_clock::now();
-    get_init_data(api_url_, tnx_json, chain_id, chain_id_bytes);
-
-    for(auto action : actions) {
-        std::string smart_contract_abi;
-        
-        get_transaction_smart_contract_abi(api_url_, action.account, smart_contract_abi);
-        
-        json act;
-        
-        act["account"] = action.account;
-        act["name"] = action.name;
-        act["authorization"] = json::array();
-        
-        for (auto a : action.authorization) {
-            json auth;
-            auth["actor"] = a.actor;
-            auth["permission"] = a.permission;
-            
-            act["authorization"].push_back(auth);
-        }
-        
-        act["data"] = std::string(build_transaction_action_binary(context, action.account, action.name, smart_contract_abi, action.data));
-        
-        tnx_json["actions"].push_back(act);
-        
-        std::cout << "ACTION: " << act << std::endl;
-    }
-
-    begin = std::chrono::steady_clock::now();
+    auto node_info = get_node_info(api_url_, chain_id, chain_id_bytes);
+    std::uint64_t last_irreversible_block_num = node_info["last_irreversible_block_num"].get<std::uint64_t>();
+    std::string head_block_time = node_info["head_block_time"].get<std::string>();
     
+    auto last_block_info = get_last_block_info(api_url_, last_irreversible_block_num);
+    
+    transaction.ref_block_num = (std::uint16_t)(last_irreversible_block_num & 0xFFFF);
+    transaction.expiration = parse_date_string(head_block_time) + 6 * 60;
+    transaction.ref_block_prefix = last_block_info["ref_block_prefix"].get<std::uint32_t>();
+
     std::vector<std::string> priv_key_bytes_vector;
     
     for(auto a : this->authorizers_) {
@@ -90,16 +59,11 @@ std::string EOSClient::action(std::vector<Action> actions) {
         priv_key_bytes_vector.push_back(bytesString);
     }
 
-    build_transaction(context, tnx_json, transaction_contract, packed_tnx, packed_tnx_size, ctx,
-                      priv_key_bytes_vector, chain_id_bytes);
-    
+    json tnx_json = build_transaction(context, &transaction, priv_key_bytes_vector, chain_id_bytes);
 
-    begin = std::chrono::steady_clock::now();
+    auto response = send_transaction(api_url_, tnx_json, context);
     
-    auto response = send_transaction(api_url_, tnx_json, context, transaction_contract);
-    end = std::chrono::steady_clock::now();
-    
-    clear_program(context, ctx);
+    abieos_destroy(context);
     
     json response_json;
     CHECK(parseJSON(response, response_json) == 1);
@@ -241,4 +205,14 @@ bool EOSClient::createKeyPair(std::string &priv_key, std::string &pub_key) {
     SECP256K1_API::secp256k1_context_destroy(ctx);
     
     return true;
+}
+
+
+Action* EOSClient::setABIAction(Action* action) {
+    std::string smart_contract_abi;
+    
+    get_transaction_smart_contract_abi(this->api_url_, action->account, smart_contract_abi);
+    action->abi = smart_contract_abi;
+    
+    return action;
 }

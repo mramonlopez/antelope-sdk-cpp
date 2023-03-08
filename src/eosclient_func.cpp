@@ -11,7 +11,7 @@
 using json = nlohmann::json;
 using namespace onikami::eosclient;
 
-#include <eosclient/eosclient_func.h>
+#include <eosclient/eosclient_func.hpp>
 
 /*Start sendata functions*/
 struct WriteThis

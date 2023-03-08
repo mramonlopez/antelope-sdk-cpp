@@ -25,7 +25,6 @@ set(HEADER_FILES
 	include/secp256k1.h
 	contrib/lax_der_parsing.h
 	contrib/lax_der_privatekey_parsing.h
-	examples/random.h
 	src/scalar_impl.h
 	src/field_10x26_impl.h
 	src/testrand_impl.h

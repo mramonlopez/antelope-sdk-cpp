@@ -8,12 +8,16 @@
 #ifndef eosclient_lib_h
 #define eosclient_lib_h
 
-#include <eosclient/eosclient_func.h>
+#include <eosclient/eosclient_func.hpp>
 #include <eosio/abieos.h>
-
+#include <iostream>
+ 
 //Crypto and hashing stuff:
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
+#include <eosclient/Transaction.hpp>
+
+using namespace onikami::eosclient;
 
 /**
  * @file eosclient_lib.h
@@ -47,21 +51,20 @@ std::string base58check(std::string data);
 bool is_canonical(unsigned char *signature);
 void init_transaction_json(json &tnx_json);
 void clear_program(abieos_context *context, SECP256K1_API::secp256k1_context *ctx);
-uint64_t get_node_info(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes);
-void get_last_block_info(std::string api_url, json &tnx_json);
+json get_node_info(std::string api_url, std::string &chain_id, unsigned char *chain_id_bytes);
+json get_last_block_info(std::string api_url, uint64_t last_irreversible_block_num);
+std::string get_expiration_date_string(std::string date, int minutes_to_expire);
+time_t parse_date_string(std::string date);
+
 void get_transaction_smart_contract_abi(std::string api_url, std::string contact_name, std::string &smart_contract_abi);
 void get_init_data(std::string api_url, json &tnx_json, std::string &chain_id, unsigned char *chain_id_bytes);
 
-const char*  build_transaction_action_binary(abieos_context *context, std::string contract_name, std::string action, std::string smart_contract_abi, nlohmann::json data);
-void build_packed_transaction(abieos_context *context, json tnx_json, uint64_t &transaction_contract, char *&packed_tnx,
-                              int &packed_tnx_size);
-void build_signature(SECP256K1_API::secp256k1_context *ctx, json &tnx_json, unsigned char *priv_key_bytes,
-                     unsigned char *chain_id_bytes, char *packed_tnx, int packed_tnx_size);
-void build_transaction(abieos_context *context, json &tnx_json,
-                       uint64_t &transaction_contract, char *&packed_tnx, int &packed_tnx_size,
-                       SECP256K1_API::secp256k1_context *ctx, std::vector<std::string> priv_key_bytes_vector,
+std::string build_signature(unsigned char *priv_key_bytes,
+                     unsigned char *chain_id_bytes, const Buffer &packed_tnx);
+json build_transaction(abieos_context *context, Transaction *transaction,
+                       std::vector<std::string> priv_key_bytes_vector,
                        unsigned char *chain_id_bytes);
-std::string send_transaction(std::string api_url, json &tnx_json, abieos_context *context, uint64_t transaction_contract);
+std::string send_transaction(std::string api_url, json &tnx_json, abieos_context *context);
 
 void history_get_transaction(std::string api_url, json &tnx_json, std::string transaction_id, uint64_t blockNumHint);
 
