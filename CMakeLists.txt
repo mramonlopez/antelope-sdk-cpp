@@ -61,7 +61,8 @@ add_dependencies(${LIB_NAME}
     ${EOSCLIENT_OPENSSL_CRYPTO_NAME}
     ${EOSCLIENT_CURL_NAME}
     secp256k1
-    abieos)
+    abieos
+    json)
 
 target_link_libraries(${LIB_NAME} PUBLIC 
 	nlohmann_json::nlohmann_json

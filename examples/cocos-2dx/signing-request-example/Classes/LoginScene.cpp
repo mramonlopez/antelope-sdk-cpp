@@ -24,6 +24,7 @@
 
 #include "LoginScene.h"
 #include "ui/CocosGUI.h"
+#include <eosclient/EosioSigningRequest.hpp>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -141,4 +142,28 @@ void LoginScene::menuCallback(Ref* pSender) {
     
     item->selected();
     this->network_ = item->getName();
+}
+
+
+void LoginScene::login(std::string account) {
+    onikami::eosclient::RequestDataV2 data;
+
+    data.chain_id = "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11"; // TELOS
+
+    onikami::eosclient::IdentityV2 identity;
+
+    identity.permission.actor = "onikamigames";
+    identity.permission.permission = "active";
+    data.req = identity;
+    data.callback = "waxtestapp://login/?tx={{tx}}";
+
+
+    auto request = new onikami::eosclient::EosioSigningRequest(data);
+    auto url = request->encode();
+    
+    CCLOG("URL: %s", url.c_str());
+    
+    Application::getInstance()->openURL(url);
+    
+    delete request;
 }

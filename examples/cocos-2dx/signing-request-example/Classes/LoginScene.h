@@ -42,6 +42,8 @@ public:
     
 protected:
     std::string network_ = "";
+    
+    void login(std::string account);
 };
 
 #endif // __HELLOWORLD_SCENE_H__
