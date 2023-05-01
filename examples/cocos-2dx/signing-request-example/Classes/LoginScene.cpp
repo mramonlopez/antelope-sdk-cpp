@@ -25,9 +25,12 @@
 #include "LoginScene.h"
 #include "ui/CocosGUI.h"
 #include <eosclient/EosioSigningRequest.hpp>
+#include "MainScene.hpp"
 
 USING_NS_CC;
 using namespace cocos2d::ui;
+
+std::string LoginScene::network_ = "";
 
 Scene* LoginScene::createScene()
 {
@@ -67,7 +70,7 @@ bool LoginScene::init()
     
     // ************************************************************************
     auto telos = MenuItemImage::create("telos.png", "telos-selected.png", CC_CALLBACK_1(LoginScene::menuCallback, this));
-    wax->setName("telos");
+    telos->setName("telos");
     telos->setPosition(Vec2(origin.x + 80.0f, origin.y + visibleSize.height - 80.0f));
     
     // create menu, it's an autorelease object
@@ -82,17 +85,13 @@ bool LoginScene::init()
     this->addChild(label);
     
     // ************************************************************************
-    auto account = TextField::create("(enter account)", "fonts/som-border.fnt", 14);
-    account->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + visibleSize.height * 0.5f));
-    account->setCursorEnabled(true);
-    account->setMaxLength(12);
-    account->setMaxLengthEnabled(true);
-    account->setTextColor(Color4B::WHITE);
-    account->addEventListener([this](Ref* caller, TextField::EventType event) -> void {
-//        if (event == TextField::EventType::ATTACH_WITH_IME || event == TextField::EventType::DETACH_WITH_IME) {
-//            this->updatePopupPosition(event == TextField::EventType::ATTACH_WITH_IME);
-//        }
-    });
+    account_ = TextField::create("(enter account)", "fonts/som-border.fnt", 14);
+    account_->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + visibleSize.height * 0.5f));
+    account_->setCursorEnabled(true);
+    account_->setMaxLength(12);
+    account_->setMaxLengthEnabled(true);
+    account_->setTextColor(Color4B::WHITE);
+    account_->setString("onikamigames");
     
     // ************************************************************************
     auto info = Label::createWithTTF("(12 characters, alphanumeric a-z, 1-5)", "fonts/Marker Felt.ttf", 10);
@@ -101,16 +100,16 @@ bool LoginScene::init()
     info->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + visibleSize.height * 0.5f - 20.0f));
     this->addChild(info);
     
-    this->addChild(account);
+    this->addChild(account_);
     
     // ************************************************************************
-    auto loginButton = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-dissabled.png", ui::Widget::TextureResType::LOCAL);
+    auto loginButton = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-disabled.png", ui::Widget::TextureResType::LOCAL);
     loginButton->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 40.0f));
-    loginButton->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type){
+    loginButton->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type){
         switch (type)
         {
             case ui::Widget::TouchEventType::ENDED:
-                // loginButton
+                this->login();
                 break;
             default:
                 break;
@@ -141,21 +140,28 @@ void LoginScene::menuCallback(Ref* pSender) {
     }
     
     item->selected();
-    this->network_ = item->getName();
+    LoginScene::network_ = item->getName();
 }
 
 
-void LoginScene::login(std::string account) {
+void LoginScene::login() {
     onikami::eosclient::RequestDataV2 data;
 
-    data.chain_id = "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11"; // TELOS
+    // https://github.com/eosio-eps/EEPs/blob/master/EEPS/eep-7.md#Chain-Aliases
+    if (LoginScene::network_ == "telos") {
+        data.chain_id = "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11"; // TELOS
+    } else if (LoginScene::network_ == "wax") {
+        data.chain_id = "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4"; // WAX
+    } else {
+        return;
+    }
 
     onikami::eosclient::IdentityV2 identity;
 
-    identity.permission.actor = "onikamigames";
+    identity.permission.actor = this->account_->getString();
     identity.permission.permission = "active";
     data.req = identity;
-    data.callback = "waxtestapp://login/?tx={{tx}}";
+    data.callback = "esrtestapp://login/?actor={{sa}}&permission={{sp}}";
 
 
     auto request = new onikami::eosclient::EosioSigningRequest(data);
@@ -166,4 +172,11 @@ void LoginScene::login(std::string account) {
     Application::getInstance()->openURL(url);
     
     delete request;
+}
+
+void LoginScene::onLogin(std::string actor, std::string permission) {
+    auto scene = MainScene::createWithActorAndPermission(actor, permission);
+    scene->setNetwork(LoginScene::network_);
+    
+    Director::getInstance()->replaceScene(scene);
 }

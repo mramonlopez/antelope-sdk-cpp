@@ -26,6 +26,7 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "ui/CocosGUI.h"
 
 class LoginScene : public cocos2d::Scene
 {
@@ -40,10 +41,14 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(LoginScene);
     
-protected:
-    std::string network_ = "";
+    static void onLogin(std::string actor, std::string permission);
     
-    void login(std::string account);
+protected:
+    static std::string network_;
+    
+    cocos2d::ui::TextField* account_ = nullptr;
+    
+    void login();
 };
 
 #endif // __HELLOWORLD_SCENE_H__

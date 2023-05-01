@@ -7,9 +7,9 @@ endif ()
 
 include(FetchContent)
 
-FetchContent_Declare(antelope-sdk-cpp
+FetchContent_Declare(eosclient
 	GIT_REPOSITORY https://github.com/mramonlopez/antelope-sdk-cpp.git
 	GIT_TAG cocos-examples
 )
 
-FetchContent_MakeAvailable(antelope-sdk-cpp)
+FetchContent_MakeAvailable(eosclient)

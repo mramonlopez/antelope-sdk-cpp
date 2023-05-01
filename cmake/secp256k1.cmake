@@ -11,7 +11,7 @@ set(BUILD_TESTING 0)
 
 FetchContent_Declare(secp256k1
 	GIT_REPOSITORY https://github.com/bitcoin-core/secp256k1
-	GIT_TAG master)
+	GIT_TAG v0.2.0)
 
 FetchContent_GetProperties(secp256k1)
 if(NOT secp256k1_POPULATED)

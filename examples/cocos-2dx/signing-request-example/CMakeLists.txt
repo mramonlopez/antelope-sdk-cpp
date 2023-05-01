@@ -23,17 +23,18 @@
 # THE SOFTWARE.
 # ****************************************************************************/
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.18)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 set(APP_NAME MyCppGame)
 
 project(${APP_NAME})
 
-include(cmake/antelope-sdk-cpp.cmake)
-
 if(XCODE)
     if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
-        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 8.0)
+        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 11.0)
     endif()
 endif()
 
@@ -60,10 +61,12 @@ endif()
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
      Classes/LoginScene.cpp
+     Classes/MainScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
      Classes/LoginScene.h
+     Classes/MainScene.hpp
      )
 
 if(ANDROID)
@@ -131,15 +134,27 @@ else()
     target_link_libraries(${APP_NAME} -Wl,--whole-archive cpp_android_spec -Wl,--no-whole-archive)
 endif()
 
-target_link_libraries(${APP_NAME} cocos2d antelope-sdk-cpp)
+# mark app resources
+setup_cocos_app_config(${APP_NAME})
+
+################################################
+# Get antelope-sdk-cpp
+# Add after calling setup_cocos_app_config
+################################################
+set(EOSCLIENT_CURL_NAME "ext_curl")
+set(EOSCLIENT_OPENSSL_NAME "ext_ssl")
+set(EOSCLIENT_OPENSSL_CRYPTO_NAME "ext_crypto")
+include(cmake/antelope-sdk-cpp.cmake)
+
+target_compile_features(${APP_NAME} PRIVATE cxx_std_17)
+
+target_link_libraries(${APP_NAME} cocos2d eosclient)
 target_include_directories(${APP_NAME}
         PRIVATE Classes
         PRIVATE ${COCOS2DX_ROOT_PATH}/cocos/audio/include/
         PRIVATE ${antelope-sdk-cpp_SOURCE_DIR}/include
 )
 
-# mark app resources
-setup_cocos_app_config(${APP_NAME})
 if(APPLE)
     set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
 
@@ -151,7 +166,8 @@ if(APPLE)
     endif()
 
     # For code-signing, set the DEVELOPMENT_TEAM:
-    #set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "GRLXXXX2K9")
+    set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "XEE25732NS")
+    set_xcode_property(${APP_NAME} INSTALL_PATH "/Applications")
 elseif(WINDOWS)
     cocos_copy_target_dll(${APP_NAME})
 endif()
