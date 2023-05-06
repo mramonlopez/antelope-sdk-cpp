@@ -33,9 +33,11 @@ set(SOURCE_FILES
     src/Hash.cpp
     src/types.cpp
     src/EosioSigningRequest.cpp
+    src/SigningRequestCallbackManager.cpp
     src/Action.cpp
     src/Transaction.cpp
     src/PermissionLevel.cpp
+    src/EdUrlParser.cpp
 )
 
 set(HEADER_FILES
@@ -49,6 +51,10 @@ set(HEADER_FILES
     include/eosclient/Action.hpp
     include/eosclient/PermissionLevel.hpp
     include/eosclient/EosioSigningRequest.hpp
+    include/eosclient/SigningRequestCallbackManager.hpp
+    include/eosclient/SigningRequestCallback.hpp
+    include/eosclient/SigningRequestCallbackDelegate.hpp
+    include/eosclient/EdUrlParser.hpp
 )
 
 set(RES_FILES

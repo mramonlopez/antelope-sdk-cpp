@@ -1,6 +1,6 @@
 //
 //  Transaction.hpp
-//  waxtestapp
+//  Antelope SDK
 //
 //  Created by Manuel Ramon Lopez Torres on 30/12/22.
 //

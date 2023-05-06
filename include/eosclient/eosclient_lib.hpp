@@ -1,6 +1,6 @@
 //
 //  app.h
-//  waxtestapp
+//  Antelope SDK
 //
 //  Created by Manuel Ramon Lopez Torres on 11/4/22.
 //

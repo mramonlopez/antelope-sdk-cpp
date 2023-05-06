@@ -178,7 +178,7 @@ time_t parse_date_string(std::string date) {
     return timestamp;
 }
 
-void get_transaction_smart_contract_abi(std::string api_url, std::string contact_name, std::string &smart_contract_abi)
+void get_transaction_smart_contract_abi(std::string api_url, std::string contract_name, std::string &smart_contract_abi)
 {
 	std::string response;
 	json response_json;
@@ -193,7 +193,7 @@ void get_transaction_smart_contract_abi(std::string api_url, std::string contact
 		}
 		else
 		{
-			CHECK(sendData("{\"account_name\":\"" + contact_name + "\"}",
+			CHECK(sendData("{\"account_name\":\"" + contract_name + "\"}",
 						   api_url + "/chain/get_abi", response, CURL_IS_VERBOSE) == 1);
 			CHECK(parseJSON(response, response_json) == 1);
 			smart_contract_abi = response_json["abi"].dump();

@@ -1,6 +1,6 @@
 //
 //  PermissionLevel.hpp
-//  waxtestapp
+//  Antelope SDK
 //
 //  Created by Manuel Ramon Lopez Torres on 1/1/23.
 //
