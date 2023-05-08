@@ -1,6 +1,6 @@
 //
 //  MainScene.hpp
-//  MyCppGame
+//  SigningRequestExample
 
 #ifndef MainScene_hpp
 #define MainScene_hpp

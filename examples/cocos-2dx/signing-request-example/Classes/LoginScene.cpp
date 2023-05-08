@@ -167,8 +167,6 @@ void LoginScene::login() {
     auto request = new onikami::eosclient::EosioSigningRequest(data);
     auto url = request->encode();
     
-    CCLOG("URL: %s", url.c_str());
-    
     Application::getInstance()->openURL(url);
     
     delete request;

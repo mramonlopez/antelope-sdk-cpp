@@ -1,6 +1,6 @@
 //
 //  MainScene.cpp
-//  MyCppGame
+//  SigningRequestExample
 
 #include "MainScene.hpp"
 #include <nlohmann/json.hpp>
@@ -55,9 +55,9 @@ bool MainScene::init() {
     this->addChild(label, 1);
     
     // ************************************************************************
-    auto hiButton = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-disabled.png", ui::Widget::TextureResType::LOCAL);
-    hiButton->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 40.0f));
-    hiButton->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type){
+    auto stakeBtn = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-disabled.png", ui::Widget::TextureResType::LOCAL);
+    stakeBtn->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 100.0f));
+    stakeBtn->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type){
         switch (type)
         {
             case ui::Widget::TouchEventType::ENDED:
@@ -68,15 +68,39 @@ bool MainScene::init() {
         }
     });
     
-    auto size = hiButton->getContentSize();
+    auto size = stakeBtn->getContentSize();
     
-    auto hi = Label::createWithTTF("Say hi!", "fonts/Marker Felt.ttf", 12);
-    hi->setTextColor(Color4B::WHITE);
-    hi->setAlignment(TextHAlignment::CENTER);
-    hi->setPosition(Vec2(size.width * 0.5f, size.height * 0.5f));
-    hiButton->addChild(hi);
+    auto stakeLbl = Label::createWithTTF("Stake", "fonts/Marker Felt.ttf", 12);
+    stakeLbl->setTextColor(Color4B::WHITE);
+    stakeLbl->setAlignment(TextHAlignment::CENTER);
+    stakeLbl->setPosition(Vec2(size.width * 0.5f, size.height * 0.5f));
+    stakeBtn->addChild(stakeLbl);
     
-    this->addChild(hiButton);
+    this->addChild(stakeBtn);
+    
+    // ************************************************************************
+    auto unstakeBtn = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-disabled.png", ui::Widget::TextureResType::LOCAL);
+    unstakeBtn->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 40.0f));
+    unstakeBtn->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type){
+        switch (type)
+        {
+            case ui::Widget::TouchEventType::ENDED:
+                this->stake();
+                break;
+            default:
+                break;
+        }
+    });
+    
+    size = unstakeBtn->getContentSize();
+    
+    auto unstakeLbl = Label::createWithTTF("Stake", "fonts/Marker Felt.ttf", 12);
+    unstakeLbl->setTextColor(Color4B::WHITE);
+    unstakeLbl->setAlignment(TextHAlignment::CENTER);
+    unstakeLbl->setPosition(Vec2(size.width * 0.5f, size.height * 0.5f));
+    stakeBtn->addChild(unstakeLbl);
+    
+    this->addChild(stakeBtn);
     
     return true;
 }
@@ -92,30 +116,33 @@ void MainScene::stake() {
     
     onikami::eosclient::Action action = {"eosio", "delegatebw", delegate_data, {{this->actor_, this->permission_}}};
     
-    // Get action ABI from network
-    auto client = new onikami::eosclient::EOSClient(this->endpoint_, {});
-    client->setABIAction(&action);
-    delete client;
-
-    // Create transaction
-    onikami::eosclient::Transaction transaction;
-    transaction.actions.push_back(action);
-    
-    onikami::eosclient::RequestDataV2 data;
-
-    // Create request
-    data.chain_id = this->chain_id_;
-    data.req = transaction;
-    data.flags = onikami::eosclient::RequestDataV2::BROADCAST;
-    data.callback = "esrtestapp://result?tx={{tx}}";
-    
-    auto request = new onikami::eosclient::EosioSigningRequest(data);
-    auto url = request->encode();
-    
-    Application::getInstance()->openURL(url);
-    
-    delete request;
-    
+    try {
+        // Get action ABI from network
+        auto client = new onikami::eosclient::EOSClient(this->endpoint_, {});
+        client->setABIAction(&action);
+        delete client;
+        
+        // Create transaction
+        onikami::eosclient::Transaction transaction;
+        transaction.actions.push_back(action);
+        
+        onikami::eosclient::RequestDataV2 data;
+        
+        // Create request
+        data.chain_id = this->chain_id_;
+        data.req = transaction;
+        data.flags = onikami::eosclient::RequestDataV2::BROADCAST;
+        data.callback = "esrtestapp://result?tx={{tx}}";
+        
+        auto request = new onikami::eosclient::EosioSigningRequest(data);
+        auto url = request->encode();
+        
+        Application::getInstance()->openURL(url);
+        
+        delete request;
+    } catch (std::runtime_error e) {
+        CCLOG("Error: %s", e.what());
+    }
 }
 
 void MainScene::unstake() {
@@ -129,29 +156,33 @@ void MainScene::unstake() {
     
     onikami::eosclient::Action action = {"eosio", "undelegatebw", delegate_data, {{this->actor_, this->permission_}}};
     
-    // Get action ABI from network
-    auto client = new onikami::eosclient::EOSClient(this->endpoint_, {});
-    client->setABIAction(&action);
-    delete client;
+    try {
+        // Get action ABI from network
+        auto client = new onikami::eosclient::EOSClient(this->endpoint_, {});
+        client->setABIAction(&action);
+        delete client;
 
-    // Create transaction
-    onikami::eosclient::Transaction transaction;
-    transaction.actions.push_back(action);
-    
-    onikami::eosclient::RequestDataV2 data;
+        // Create transaction
+        onikami::eosclient::Transaction transaction;
+        transaction.actions.push_back(action);
+        
+        onikami::eosclient::RequestDataV2 data;
 
-    // Create request
-    data.chain_id = this->chain_id_;
-    data.req = transaction;
-    data.flags = onikami::eosclient::RequestDataV2::BROADCAST;
-    data.callback = "esrtestapp://result?tx={{tx}}";
-    
-    auto request = new onikami::eosclient::EosioSigningRequest(data);
-    auto url = request->encode();
-    
-    Application::getInstance()->openURL(url);
-    
-    delete request;
+        // Create request
+        data.chain_id = this->chain_id_;
+        data.req = transaction;
+        data.flags = onikami::eosclient::RequestDataV2::BROADCAST;
+        data.callback = "esrtestapp://result?tx={{tx}}";
+        
+        auto request = new onikami::eosclient::EosioSigningRequest(data);
+        auto url = request->encode();
+        
+        Application::getInstance()->openURL(url);
+        
+        delete request;
+    } catch (std::runtime_error e) {
+        CCLOG("Error: %s", e.what());
+    }
 }
 
 void MainScene::setNetwork(const std::string &network) {
@@ -165,10 +196,10 @@ void MainScene::setNetwork(const std::string &network) {
     if (network_ == "wax") {
         this->quantity_ = "0.01000000 WAX";
         this->chain_id_ = "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4";
-        this->endpoint_ = "http://api.waxsweden.org";
+        this->endpoint_ = "http://api.waxsweden.org/v1";
     } else if (network_ == "telos") {
         this->quantity_ = "0.0100 TLOS";
         this->chain_id_ = "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11";
-        this->endpoint_ = "https://mainnet.telos.net/ ";
+        this->endpoint_ = "http://mainnet.telos.net/v1";
     }
 }

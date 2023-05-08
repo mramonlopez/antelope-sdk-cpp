@@ -28,17 +28,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-set(APP_NAME MyCppGame)
+set(APP_NAME SigningRequestTest)
 
 project(${APP_NAME})
 
 if(XCODE)
     if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
-        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 11.0)
+        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 13.0)
     endif()
 endif()
 
-if(NOT DEFINED BUILD_ENGINE_DONE) # to test MyCppGame into root project
+if(NOT DEFINED BUILD_ENGINE_DONE) # to test SigningRequestTest into root project
     set(COCOS2DX_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cocos2d)
     set(CMAKE_MODULE_PATH ${COCOS2DX_ROOT_PATH}/cmake/Modules/)
 
@@ -144,11 +144,18 @@ setup_cocos_app_config(${APP_NAME})
 set(EOSCLIENT_CURL_NAME "ext_curl")
 set(EOSCLIENT_OPENSSL_NAME "ext_ssl")
 set(EOSCLIENT_OPENSSL_CRYPTO_NAME "ext_crypto")
-include(cmake/antelope-sdk-cpp.cmake)
-
+#include(cmake/antelope-sdk-cpp.cmake)
+add_subdirectory(${CMAKE_SOURCE_DIR}/antelope)
 target_compile_features(${APP_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(${APP_NAME} cocos2d eosclient)
+target_link_libraries(${APP_NAME}
+        cocos2d
+
+        -Wl,-whole-archive
+        eosclient
+        -Wl,-no-whole-archive
+)
+
 target_include_directories(${APP_NAME}
         PRIVATE Classes
         PRIVATE ${COCOS2DX_ROOT_PATH}/cocos/audio/include/
