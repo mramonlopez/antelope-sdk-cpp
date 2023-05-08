@@ -7,7 +7,9 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <eosclient/Hash.hpp>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 using json = nlohmann::json;
 using namespace onikami::eosclient;
 
@@ -77,6 +79,11 @@ int sendData(std::string data, std::string api_endpoint, std::string &response, 
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+        auto path = fs::absolute("ca-bundle.txt");
+        std::string bundle = path.string();
+        curl_easy_setopt(curl, CURLOPT_CAINFO, bundle.c_str());
+        curl_easy_setopt(curl, CURLOPT_CAPATH, bundle.c_str());
 
         // if (isverbose)
         //     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);

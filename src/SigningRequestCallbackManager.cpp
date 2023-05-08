@@ -8,6 +8,7 @@ SigningRequestCallbackManager* SigningRequestCallbackManager::getInstance() {
 
     if (instance == nullptr) {
         instance = new SigningRequestCallbackManager();
+        instance->delegate_ = nullptr;
     }
 
     return instance;

@@ -16,7 +16,7 @@ namespace eosclient {
 
 class SigningRequestCallbackManager {
 public:
-    SigningRequestCallbackManager* getInstance();
+    static SigningRequestCallbackManager* getInstance();
     void setDelegate(SigningRequestCallbackDelegate* delegate);
     void onCallback(const std::string url);
 

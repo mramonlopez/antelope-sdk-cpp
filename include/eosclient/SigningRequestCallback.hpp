@@ -9,6 +9,7 @@
 #define SigningRequestCallback_hpp
 
 #include <string>
+#include <vector>
 
 namespace onikami {
 namespace eosclient {
