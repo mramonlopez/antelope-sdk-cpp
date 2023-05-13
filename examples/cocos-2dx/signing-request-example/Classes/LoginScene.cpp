@@ -25,10 +25,12 @@
 #include "LoginScene.h"
 #include "ui/CocosGUI.h"
 #include <eosclient/EosioSigningRequest.hpp>
+#include <eosclient/SigningRequestCallbackManager.hpp>
 #include "MainScene.hpp"
 
 USING_NS_CC;
 using namespace cocos2d::ui;
+using namespace onikami::eosclient;
 
 std::string LoginScene::network_ = "";
 
@@ -94,7 +96,7 @@ bool LoginScene::init()
     account_->setString("onikamigames");
     
     // ************************************************************************
-    auto info = Label::createWithTTF("(12 characters, alphanumeric a-z, 1-5)", "fonts/Marker Felt.ttf", 10);
+    auto info = Label::createWithTTF("(12 characters, alphanumeric a-z, 1-5)", "fonts/Marker Felt.ttf", 8);
     info->setTextColor(Color4B::GRAY);
     info->setAlignment(TextHAlignment::CENTER);
     info->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + visibleSize.height * 0.5f - 20.0f));
@@ -125,6 +127,8 @@ bool LoginScene::init()
     loginButton->addChild(login);
     
     this->addChild(loginButton);
+
+    SigningRequestCallbackManager::getInstance()->setDelegate(this);
 
     return true;
 }
@@ -161,7 +165,7 @@ void LoginScene::login() {
     identity.permission.actor = this->account_->getString();
     identity.permission.permission = "active";
     data.req = identity;
-    data.callback = "esrtestapp://login/?actor={{sa}}&permission={{sp}}";
+    data.callback = "esrtestapp://login/?sa={{sa}}&sp={{sp}}";
 
 
     auto request = new onikami::eosclient::EosioSigningRequest(data);
@@ -172,9 +176,11 @@ void LoginScene::login() {
     delete request;
 }
 
-void LoginScene::onLogin(std::string actor, std::string permission) {
-    auto scene = MainScene::createWithActorAndPermission(actor, permission);
-    scene->setNetwork(LoginScene::network_);
-    
-    Director::getInstance()->replaceScene(scene);
+void LoginScene::onCallback(const SigningRequestCallback signingRequestCallback) {
+    if (signingRequestCallback.host == "login") {
+        auto scene = MainScene::createWithActorAndPermission(signingRequestCallback.sa, signingRequestCallback.sp);
+        scene->setNetwork(LoginScene::network_);
+
+        Director::getInstance()->replaceScene(scene);
+    }
 }

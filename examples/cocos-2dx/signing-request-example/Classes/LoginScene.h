@@ -27,8 +27,9 @@
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
+#include <eosclient/SigningRequestCallbackDelegate.hpp>
 
-class LoginScene : public cocos2d::Scene
+class LoginScene : public cocos2d::Scene, public onikami::eosclient::SigningRequestCallbackDelegate
 {
 public:
     static cocos2d::Scene* createScene();
@@ -41,7 +42,7 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(LoginScene);
     
-    static void onLogin(std::string actor, std::string permission);
+    virtual void onCallback(const onikami::eosclient::SigningRequestCallback signingRequestCallback);
     
 protected:
     static std::string network_;

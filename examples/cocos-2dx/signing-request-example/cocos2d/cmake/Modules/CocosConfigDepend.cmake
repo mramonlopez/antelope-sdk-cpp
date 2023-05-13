@@ -70,7 +70,7 @@ macro(cocos2dx_depend)
             find_library(AV_FOUNDATION_LIBRARY AVFoundation)
             find_library(WEBKIT_LIBRARY WebKit)
 
-   	    find_library(ZLIB z)
+   	        find_library(ZLIB z)
             find_library(ICONVLIB iconv)
 
             list(APPEND PLATFORM_SPECIFIC_LIBS

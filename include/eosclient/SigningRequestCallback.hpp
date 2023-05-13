@@ -18,6 +18,7 @@ class SigningRequestCallback {
 public:
     std::string host;
     std::string path;
+    std::string query;
      
     std::vector<std::string> sigs; /* Signatures. */
     std::string tx; /* Transaction ID as HEX-encoded string. */

@@ -7,8 +7,9 @@
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
+#include <eosclient/SigningRequestCallbackDelegate.hpp>
 
-class MainScene : public cocos2d::Scene
+class MainScene : public cocos2d::Scene, public onikami::eosclient::SigningRequestCallbackDelegate
 {
 public:
     static cocos2d::Scene* createScene();
@@ -20,7 +21,8 @@ public:
     CC_SYNTHESIZE_READONLY(std::string, network_, Network);
 
     void setNetwork(const std::string &network);
-    
+    virtual void onCallback(const onikami::eosclient::SigningRequestCallback signingRequestCallback);
+
 protected:
     std::string actor_ = "";
     std::string permission_ = "";

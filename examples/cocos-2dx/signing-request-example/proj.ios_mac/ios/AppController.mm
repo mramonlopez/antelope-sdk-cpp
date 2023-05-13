@@ -27,8 +27,8 @@
 #import "AppController.h"
 #import "cocos2d.h"
 #import "AppDelegate.h"
+#import <eosclient/SigningRequestCallbackManager.hpp>
 #import "RootViewController.h"
-#import "LoginScene.h"
 
 @implementation AppController
 
@@ -41,36 +41,7 @@
 static AppDelegate s_sharedApplication;
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    if ([url.host isEqual:@"login"]) {
-        NSURLComponents *components = [NSURLComponents componentsWithURL:url
-                                                       resolvingAgainstBaseURL:YES];
-        
-        NSString* actor;
-        NSString* permission;
-        
-        for (NSURLQueryItem *item in components.queryItems) {
-            if ([item.name  isEqual: @"actor"]) {
-                actor = [NSString stringWithString:item.value];
-            } else if ([item.name  isEqual: @"permission"]) {
-                permission = [NSString stringWithString:item.value];
-            }
-        }
-
-        LoginScene::onLogin([actor UTF8String], [permission UTF8String]);
-    } else if ([url.host isEqual:@"result"]) {
-        NSURLComponents *components = [NSURLComponents componentsWithURL:url
-                                                       resolvingAgainstBaseURL:YES];
-        
-        NSString* tx;
-        
-        for (NSURLQueryItem *item in components.queryItems) {
-            if ([item.name  isEqual: @"tx"]) {
-                tx = [NSString stringWithString:item.value];
-            }
-        }
-
-//        LoginScene::onLogin([actor UTF8String], [permission UTF8String]);
-    }
+    onikami::eosclient::SigningRequestCallbackManager::getInstance()->onCallback([url.absoluteString UTF8String]);
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

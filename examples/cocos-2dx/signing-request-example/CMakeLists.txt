@@ -34,7 +34,7 @@ project(${APP_NAME})
 
 if(XCODE)
     if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
-        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 13.0)
+        SET (CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 11.0)
     endif()
 endif()
 
@@ -148,13 +148,20 @@ set(EOSCLIENT_OPENSSL_CRYPTO_NAME "ext_crypto")
 add_subdirectory(${CMAKE_SOURCE_DIR}/antelope)
 target_compile_features(${APP_NAME} PRIVATE cxx_std_17)
 
-target_link_libraries(${APP_NAME}
+if(NOT ANDROID)
+    target_link_libraries(${APP_NAME}
+            cocos2d
+            eosclient
+    )
+else()
+    target_link_libraries(${APP_NAME}
         cocos2d
 
         -Wl,-whole-archive
         eosclient
         -Wl,-no-whole-archive
 )
+endif()
 
 target_include_directories(${APP_NAME}
         PRIVATE Classes

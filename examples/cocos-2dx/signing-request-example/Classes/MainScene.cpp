@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <eosclient/Action.hpp>
 #include <eosclient/EosioSigningRequest.hpp>
+#include <eosclient/SigningRequestCallbackManager.hpp>
 #include <eosclient/Transaction.hpp>
 #include <eosclient/eosclient.hpp>
 #include <eosclient/PermissionLevel.hpp>
@@ -49,14 +50,14 @@ bool MainScene::init() {
     icon->setName("icon");
     this->addChild(icon);
 
-    auto label = Label::createWithTTF("Logged as " + this->actor_ + "@" + this->permission_, "fonts/Marker Felt.ttf", 10);
+    auto label = Label::createWithTTF("Logged as " + this->actor_ + "@" + this->permission_, "fonts/Marker Felt.ttf", 8);
     label->setPosition(Vec2(origin.x + visibleSize.width/2 + 20.0f,
                             origin.y + visibleSize.height - 40.0f));
     this->addChild(label, 1);
     
     // ************************************************************************
     auto stakeBtn = Button::create("lime-button.png", "lime-button-pressed.png", "lime-button-disabled.png", ui::Widget::TextureResType::LOCAL);
-    stakeBtn->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 100.0f));
+    stakeBtn->setPosition(Vec2(origin.x + visibleSize.width * 0.5f, origin.y + 80.0f));
     stakeBtn->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type){
         switch (type)
         {
@@ -85,7 +86,7 @@ bool MainScene::init() {
         switch (type)
         {
             case ui::Widget::TouchEventType::ENDED:
-                this->stake();
+                this->unstake();
                 break;
             default:
                 break;
@@ -94,13 +95,15 @@ bool MainScene::init() {
     
     size = unstakeBtn->getContentSize();
     
-    auto unstakeLbl = Label::createWithTTF("Stake", "fonts/Marker Felt.ttf", 12);
+    auto unstakeLbl = Label::createWithTTF("Untake", "fonts/Marker Felt.ttf", 12);
     unstakeLbl->setTextColor(Color4B::WHITE);
     unstakeLbl->setAlignment(TextHAlignment::CENTER);
     unstakeLbl->setPosition(Vec2(size.width * 0.5f, size.height * 0.5f));
-    stakeBtn->addChild(unstakeLbl);
+    unstakeBtn->addChild(unstakeLbl);
     
-    this->addChild(stakeBtn);
+    this->addChild(unstakeBtn);
+
+    SigningRequestCallbackManager::getInstance()->setDelegate(this);
     
     return true;
 }
@@ -202,4 +205,8 @@ void MainScene::setNetwork(const std::string &network) {
         this->chain_id_ = "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11";
         this->endpoint_ = "http://mainnet.telos.net/v1";
     }
+}
+
+void MainScene::onCallback(const SigningRequestCallback signingRequestCallback) {
+    CCLOG("Transaction received: %s\n", signingRequestCallback.tx.c_str());
 }

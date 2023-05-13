@@ -32,7 +32,7 @@ void SigningRequestCallbackManager::onCallback(const std::string url_string) {
     
     unordered_map<string, string> map;
 
-	int c = EdUrlParser::parseKeyValueMap(&map, url->query);
+	auto c = EdUrlParser::parseKeyValueMap(&map, url->query);
 
     if (c > 0) {
         if (map.count("sig") > 0) {

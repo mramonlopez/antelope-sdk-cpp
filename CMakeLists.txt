@@ -38,7 +38,6 @@ set(SOURCE_FILES
     src/Transaction.cpp
     src/PermissionLevel.cpp
     src/EdUrlParser.cpp
-    android/jni/com_onikami_antelope_SigningRequestCallbackManager.cpp
 )
 
 set(HEADER_FILES
@@ -56,17 +55,16 @@ set(HEADER_FILES
     include/eosclient/SigningRequestCallback.hpp
     include/eosclient/SigningRequestCallbackDelegate.hpp
     include/eosclient/EdUrlParser.h
-    android/jni/com_onikami_antelope_SigningRequestCallbackManager.h
 )
 
-#if(CMAKE_SYSTEM_NAME EQUAL "Android")
-#    list(APPEND SOURCE_FILES
-#            android/jni/com_onikami_antelope_SigningRequestCallbackManager.cppk
-#    )
-#    list(APPEND HEADER_FILES
-#            android/jni/com_onikami_antelope_SigningRequestCallbackManager.h
-#    )
-#endif()
+IF(ANDROID)
+    list(APPEND SOURCE_FILES
+            android/jni/com_onikami_antelope_SigningRequestCallbackManager.cpp
+    )
+    list(APPEND HEADER_FILES
+            android/jni/com_onikami_antelope_SigningRequestCallbackManager.h
+    )
+ENDIF()
 
 set(RES_FILES
     res/ca-bundle.txt
