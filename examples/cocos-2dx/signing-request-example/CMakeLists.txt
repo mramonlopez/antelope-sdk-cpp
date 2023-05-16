@@ -144,8 +144,9 @@ setup_cocos_app_config(${APP_NAME})
 set(EOSCLIENT_CURL_NAME "ext_curl")
 set(EOSCLIENT_OPENSSL_NAME "ext_ssl")
 set(EOSCLIENT_OPENSSL_CRYPTO_NAME "ext_crypto")
-#include(cmake/antelope-sdk-cpp.cmake)
-add_subdirectory(${CMAKE_SOURCE_DIR}/antelope)
+
+include(cmake/antelope-sdk-cpp.cmake)
+
 target_compile_features(${APP_NAME} PRIVATE cxx_std_17)
 
 if(NOT ANDROID)

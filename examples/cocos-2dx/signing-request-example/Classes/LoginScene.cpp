@@ -93,7 +93,6 @@ bool LoginScene::init()
     account_->setMaxLength(12);
     account_->setMaxLengthEnabled(true);
     account_->setTextColor(Color4B::WHITE);
-    account_->setString("onikamigames");
     
     // ************************************************************************
     auto info = Label::createWithTTF("(12 characters, alphanumeric a-z, 1-5)", "fonts/Marker Felt.ttf", 8);
