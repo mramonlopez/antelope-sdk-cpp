@@ -1,0 +1,20 @@
+.DS_Store
+
+project.xcworkspace/
+xcuserdata/
+
+.idea
+
+# Android build
+bin
+proj.android/app/.cxx/
+proj.android/app/release
+
+# iOS cmake generated project
+ios-build/
+
+# backup files
+*.zip
+
+# temp files
+*.hprof

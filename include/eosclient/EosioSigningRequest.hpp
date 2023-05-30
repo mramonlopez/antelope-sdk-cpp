@@ -19,7 +19,10 @@ namespace eosclient
 {
 
 class IdentityV2 {
+public:
     PermissionLevel permission;
+    
+    Buffer getPackedData();
 };
 
 typedef std::variant<Action, std::vector<Action>, Transaction, IdentityV2> RequestVariantV2;

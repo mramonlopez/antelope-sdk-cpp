@@ -50,19 +50,12 @@ Buffer onikami::eosclient::toBufferFromHex(std::string str) {
 std::string onikami::eosclient::toBase64UString(Buffer buffer) {
     const std::string charset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
     
-    auto out = toBase64String(buffer, charset);
-    
-    // Remove '='
-//    string s("hello $name");
-//    size_type pos = s.find( "$name" );
-//    if ( pos != string::npos ) {
-//       s.replace( pos, 5, "somename" );   // 5 = length( $name )
-//    }
-    
+    auto out = toBase64String(buffer, charset, false);
+
     return out;
 }
 
-std::string onikami::eosclient::toBase64String(Buffer buffer, const std::string charset) {
+std::string onikami::eosclient::toBase64String(Buffer buffer, const std::string charset, bool with_padding) {
     unsigned int char_count;
     unsigned int bits;
     unsigned int input_idx = 0;
@@ -95,12 +88,16 @@ std::string onikami::eosclient::toBase64String(Buffer buffer, const std::string 
 
         output += charset[(bits >> 18) & 0x3f];
         output += charset[(bits >> 12) & 0x3f];
+        
         if (char_count > 1) {
             output += charset[(bits >> 6) & 0x3f];
-        } else {
+        } else if (with_padding) {
             output += '=';
         }
-        output += '=';
+        
+        if (with_padding) {
+            output += '=';
+        }
     }
     
     return output;
