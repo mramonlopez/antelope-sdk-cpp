@@ -1,5 +1,5 @@
 # Antelope C++ Client Library
-![Tux, the Linux mascot](/docs/antelope-sdk-cpp.png) 
+![Antelope SDK cpp Logo](/docs/antelope-sdk-cpp.png)
 
 This project was a fork of https://github.com/lucgerrits/EOS.IO-cpp-client created with the aim of using this EOS.io client as a library using cmake in other projects and on mobile platforms.
 
@@ -31,7 +31,12 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/EOS.IO-cpp-client EXCLUDE_FROM_ALL)
 add_dependencies(${APP_NAME} ${EOSCLIENT})
 ```
 
-## Using client with embeded keys 
+## Using client with embeded keys
+The easiest way to incorporate the Antelope network client into a project is by providing the client with the private key used for signing transactions. This eliminates the need to exit the application and request an external wallet to sign the transaction, thus reducing waiting time and improving the overall user experience. Moreover, this approach lowers the entry barrier for users who are less familiar with blockchain technology.
+
+On the other hand, safeguarding a private key imposes greater security requirements on applications and places greater responsibility on the developer.
+
+Here is an example that demonstrates how to send a signed transaction to the blockchain:
 ```cpp
 // Get key from a secure storage
 std::string priv_key = "3ac .... ce6"; 
@@ -63,7 +68,8 @@ auto result = client->sendTransaction(transaction);
 std::cout << result.c_srt() << std::endl;
 ```
 
-### Multi-action transaction 
+### Multi-action transaction
+It is indeed possible to include multiple actions within the same transaction:
 ```cpp
 onikani::eosclient::PermissionLevel permission;
 permission.actor = "testuser";
@@ -83,7 +89,8 @@ client->setABIAction(&action2);
 transaction.actions.push_back(action2);
 ```
 
-###  Multiple signer 
+###  Multiple signer
+Furthermore, you have the flexibility to employ multiple signers per action or even utilize different signers for different actions:
 ```cpp
 Authorizer auth1 = Authorizer("testuser1", priv_key1, "active");
 Authorizer auth2 = Authorizer("testuser2", priv_key2, "active");
@@ -99,6 +106,9 @@ onikami::eosclient::Action action = {"helloword", "hi", data, {permission, {"tes
 ```
 
 ## Using client with a external wallet app 
+If you don't want to manage users' private keys, there is the possibility of delegating the responsibility of signing and sending transactions to an external wallet application that supports the ESR protocol.
+
+Currently, the only supported operations of the ESR protocol are transaction sending and login request, which are more than enough for the normal use of an app integrated with Antelope blockchains.
 
 ### Send login request to external wallet 
 ```cpp
@@ -159,11 +169,15 @@ Application::getInstance()->openURL(url);
 ```
 
 ### Process wallet callbacks 
-TODO: calback fields
+In the previous examples, we explored the possibility of instructing a wallet application to execute a callback to a specific URL. Mobile apps can register a custom URL scheme and inform the operating system that they can handle such calls.
+
+Now, let's delve into the configuration process for iOS and Android applications to enable processing these callbacks.
+
+The first step is to define a class that serves as a callback event delegate by implementing the SigningRequestCallbackDelegate interface. This interface includes a single method called onCallback. Within our code, we need to register an instance of this class as the callback delegate. In the example code provided, this registration occurs in the constructor. Note that only one delegate object can be assigned to the callback handler.
 
 ```cpp
 // MyDelegate.hpp
-class MyDelegate : public cocos2d::Scene, public onikami::eosclient::SigningRequestCallbackDelegate {
+class MyDelegate : public onikami::eosclient::SigningRequestCallbackDelegate {
 public:
     virtual void onCallback(const onikami::eosclient::SigningRequestCallback signingRequestCallback);
 
@@ -183,9 +197,9 @@ void MyDelegate::onCallback(const SigningRequestCallback signingRequestCallback)
 }
 ```
 
-### Android 
-
-- In AndroidManifest.xml, add this in activity section:
+### Android
+#### Step 1
+For Android, to register a custom scheme, we need to add the following code snippet to the AndroidManifest.xml file in our project:
 ```XML
 <intent-filter android:label="Signing Request Example">
     <action android:name="android.intent.action.VIEW" />
@@ -198,9 +212,8 @@ void MyDelegate::onCallback(const SigningRequestCallback signingRequestCallback)
         android:host="login" />
 </intent-filter>
 ```
-
-- In the main Activity class add
-
+#### Step 2
+In the main Activity of the project, we also need to override the onNewIntent method and include code similar to the following to notify the delegate about the arrival of the callback:
 ```java
 import com.onikami.antelope.SigningRequestCallbackManager;
 
@@ -223,19 +236,52 @@ public void onNewIntent(Intent intent) {
     }
 }
 ```
-
 *Note: In a cocos2d-x game, you can locate this file in \<GAME ROOT PATH\>/proj.android/app/src/org/cocos2dx/cpp/AppActivity.java*
 
-- Copy the folder *com/onikami/antelope* located in *android/src/main/java/* to your project java classes root folder
-*Note: In a cocos2d-x game, you can locate this folder in \<GAME ROOT PATH\>/proj.android/app/src/*
+#### Step 3
+Lastly, we need to copy the folder com/onikami/antelope located in android/src/main/java/ to the root folder of your Java classes in your project. Note that in a cocos2d-x game, you can find this folder at <GAME ROOT PATH>/proj.android/app/src/.
+### iOS
+Now, let's move on to configuring the custom scheme in iOS by following these steps:
 
-### iOS 
+#### Step 1
+After selecting the root of our project structure, click on the main target (1). Then, select the Info tab (2) and click on the "+" button in the URL Types section (3). Finally, fill in the necessary data.
+![Custom scheme in iOS](/docs/custom_schema_ios.png)
 
+#### Step 2
+The next step involves adding code to the AppDelegate class in our project that notifies the delegate about the arrival of a callback.
+```objective-c
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    onikami::eosclient::SigningRequestCallbackManager::getInstance()->onCallback([url.absoluteString UTF8String]);
+}
+```
 
-## Tested platforms 
+### Parametros callback
+The parameters that can be received in the query string of the callback are as follows:
+
+- sig: Transaction ID as HEX-encoded string.
+- tx: Block number hint (only present if transaction was broadcast).
+- bn: Signer authority, aka account name.
+- sa: Signer permission, e.g. "active".
+- sp: Reference block num used when resolving request.
+- rbn: Reference block id used when resolving request.
+- rid: The originating signing request packed as a uri string.
+- req: Expiration time used when resolving request.
+- ex: The resolved chain id. 
+- cid: All signatures 0-indexed as `sig0`, `sig1`, etc.
+    
+## Tested platforms
+The currently supported platforms and SDKs are as follows:
+
 - iOS + Cocos2d-x
 - Android + Cocos2d-x
 
+This doesn't mean that Antelope SDK cpp cannot be used with other SDKs and engines that support integration with native code.
+
 ## TODOs: 
-- https is not yet supported
-- 
+- HTTPS is not yet supported due to integration issues with the OpenSSL library.
+- Enhance the usage of the Atieso library.
+- Cache ABIs definitions.
+- Improve this documentation.
+- Support desktop operating systems: Windows, Linux, and Mac.
+- Support for Unreal Engine.
+- Support for Godot Engine.
