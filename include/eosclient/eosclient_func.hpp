@@ -1,6 +1,9 @@
 //////////////////////////////////////////////////////////////////
 //To show errors:
+#ifndef _MSC_VER
 void abort(void) __attribute__((__noreturn__));
+#endif
+
 #define TEST_FAILURE(msg)                                        \
     do                                                           \
     {                                                            \

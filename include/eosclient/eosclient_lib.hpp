@@ -9,7 +9,7 @@
 #define eosclient_lib_h
 
 #include <eosclient/eosclient_func.hpp>
-#include <abieos.h>
+#include <abieos/abieos.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
  
