@@ -9,8 +9,9 @@
 #define eosclient_lib_h
 
 #include <eosclient/eosclient_func.hpp>
-#include <eosio/abieos.h>
+#include <abieos.h>
 #include <iostream>
+#include <nlohmann/json.hpp>
  
 //Crypto and hashing stuff:
 #include <secp256k1.h>

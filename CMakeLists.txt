@@ -115,6 +115,11 @@ set_target_properties(${LIB_NAME}
     RESOURCE "${RES_FILES}"
 )
 
+if (CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+    add_compile_options(/Zc:preprocessor)
+    target_compile_options(${LIB_NAME} PRIVATE /Zc:preprocessor)
+endif()
+
 # set(LOCATION_FOR_THE_APP $<TARGET_BUNDLE_DIR:${LIB_NAME}>)
 
 # get_target_property(APPLICATION_BIN ${LIB_NAME} LOCATION) 
