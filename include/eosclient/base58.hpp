@@ -10,6 +10,7 @@
 #define base58_hpp
 
 #include <vector>
+#include <string>
 
 inline static constexpr const uint8_t Base58Map[] = {
   '1', '2', '3', '4', '5', '6', '7', '8',

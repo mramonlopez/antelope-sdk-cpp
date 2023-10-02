@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <eosio/crypto.hpp>
 #include <secp256k1_extrakeys.h>
+#include <util.h>
 
 using namespace onikami::eosclient;
 

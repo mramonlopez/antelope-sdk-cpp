@@ -25,12 +25,13 @@
 #include <eosio/time.hpp>
 #include <eosio/to_json.hpp>
 #include <eosio/varint.hpp>
-#include <eosio/abieos.h>
+#include <abieos/abieos.h>
 
 #include <eosclient/eosclient_lib.hpp>
 #include <eosclient/eosclient_func.hpp>
 #include <eosclient/Hash.hpp>
 #include <eosclient/types.hpp>
+#include <util.h>
 
 using namespace onikami::eosclient;
 
@@ -170,7 +171,7 @@ time_t parse_date_string(std::string date) {
     t.tm_isdst = 0;
     
 #if defined(_WIN32)
-    auto timestamp = _mkgmtime(&t)
+    auto timestamp = _mkgmtime(&t);
 #else // Assume POSIX
     auto timestamp = timegm(&t);
 #endif
