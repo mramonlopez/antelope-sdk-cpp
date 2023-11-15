@@ -95,7 +95,7 @@ target_link_libraries(${LIB_NAME} PUBLIC
     ${EOSCLIENT_CURL_NAME}
 )
 
-target_compile_features(${LIB_NAME} PRIVATE cxx_std_17)
+target_compile_features(${LIB_NAME} PRIVATE cxx_std_20)
 
 target_include_directories(${LIB_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(LIB_NAME secp256k1)
 project(${LIB_NAME} VERSION 0.1 LANGUAGES CXX C)

@@ -24,7 +24,7 @@
 # ****************************************************************************/
 
 cmake_minimum_required(VERSION 3.10)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -188,7 +188,7 @@ target_include_directories(${APP_NAME}
 # mark app resources, resource will be copy auto after mark
 ax_setup_app_config(${APP_NAME})
 
-target_compile_features(${APP_NAME} PRIVATE cxx_std_17)
+target_compile_features(${APP_NAME} PRIVATE cxx_std_20)
 
 if(APPLE)
     set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
