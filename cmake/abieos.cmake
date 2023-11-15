@@ -9,7 +9,7 @@ include(FetchContent)
 
 FetchContent_Declare(abieos
 	GIT_REPOSITORY https://github.com/mramonlopez/abieos.git
-	GIT_TAG mondev
+	GIT_TAG windows
 )
 
 FetchContent_GetProperties(abieos)

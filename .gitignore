@@ -7,3 +7,4 @@ specs.json
 *.stats
 *.abi
 *build/
+build_*/

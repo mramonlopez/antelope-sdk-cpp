@@ -9,7 +9,7 @@ include(FetchContent)
 
 FetchContent_Declare(eosclient
 	GIT_REPOSITORY https://github.com/mramonlopez/antelope-sdk-cpp.git
-	GIT_TAG main
+	GIT_TAG axmol
 )
 
 FetchContent_MakeAvailable(eosclient)
