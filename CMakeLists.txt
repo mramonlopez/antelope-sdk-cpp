@@ -6,7 +6,7 @@ project(eosclient VERSION 0.1 LANGUAGES CXX C)
 set(LIB_NAME eosclient)
 
 option(EOSCLIENT_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
-option(ABIEOS_NO_INT128 "disable use of __int128" ON)
+option(ABIEOS_NO_INT128 "disable use of __int128" OFF)
 
 IF(!EOSCLIENT_CURL_NAME)
     set(EOSCLIENT_CURL_NAME "curl")
@@ -102,7 +102,8 @@ target_include_directories(${LIB_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/android/jni
     ${abieos_SOURCE_DIR}/include
     ${secp256k1_SOURCE_DIR}/include
-    ${CURL_INCLUDE_DIR}
+    ${curl_SOURCE_DIR}/include
+    ${openssl_SOURCE_DIR}/include
     ${json_SOURCE_DIR}/include
 )
 

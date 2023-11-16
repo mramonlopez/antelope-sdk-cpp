@@ -8,3 +8,4 @@ specs.json
 *.abi
 *build/
 build_*/
+.gradle/

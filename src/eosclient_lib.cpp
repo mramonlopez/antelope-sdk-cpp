@@ -25,7 +25,7 @@
 #include <eosio/time.hpp>
 #include <eosio/to_json.hpp>
 #include <eosio/varint.hpp>
-#include <eosio/abieos.h>
+#include <abieos/abieos.h>
 
 #include <eosclient/eosclient_lib.hpp>
 #include <eosclient/eosclient_func.hpp>

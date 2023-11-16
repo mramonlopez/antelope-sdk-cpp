@@ -40,6 +40,7 @@ void onikami::eosclient::to_json(nlohmann::json& j, const Action& a) {
     abieos_context *context = check(abieos_create());
     
     uint64_t contract = check_context(context, __LINE__, __FILE__, abieos_string_to_name(context, a.account.c_str()));
+    
     check_context(context, __LINE__, __FILE__, abieos_set_abi(context, contract, a.abi.c_str()));
     
     check_context(context, __LINE__, __FILE__,

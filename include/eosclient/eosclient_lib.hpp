@@ -9,7 +9,7 @@
 #define eosclient_lib_h
 
 #include <eosclient/eosclient_func.hpp>
-#include <eosio/abieos.h>
+#include <abieos/abieos.h>
 #include <iostream>
  
 //Crypto and hashing stuff:
