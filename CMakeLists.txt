@@ -59,10 +59,10 @@ set(HEADER_FILES
 
 IF(ANDROID)
     list(APPEND SOURCE_FILES
-            android/jni/com_onikami_antelope_SigningRequestCallbackManager.cpp
+        android/jni/com_onikami_antelope_SigningRequestCallbackManager.cpp
     )
     list(APPEND HEADER_FILES
-            android/jni/com_onikami_antelope_SigningRequestCallbackManager.h
+        android/jni/com_onikami_antelope_SigningRequestCallbackManager.h
     )
 ENDIF()
 
@@ -102,7 +102,8 @@ target_include_directories(${LIB_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/android/jni
     ${abieos_SOURCE_DIR}/include
     ${secp256k1_SOURCE_DIR}/include
-    ${CURL_INCLUDE_DIR}
+    ${curl_SOURCE_DIR}/include
+    ${openssl_SOURCE_DIR}/include
     ${json_SOURCE_DIR}/include
 )
 
@@ -115,25 +116,25 @@ set_target_properties(${LIB_NAME}
     RESOURCE "${RES_FILES}"
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
     add_compile_options(/Zc:preprocessor)
     target_compile_options(${LIB_NAME} PRIVATE /Zc:preprocessor)
 endif()
 
 # set(LOCATION_FOR_THE_APP $<TARGET_BUNDLE_DIR:${LIB_NAME}>)
 
-# get_target_property(APPLICATION_BIN ${LIB_NAME} LOCATION) 
-# get_dotapp_dir(${APPLICATION_BIN} APPLICATION_APP_LOCATION) 
+# get_target_property(APPLICATION_BIN ${LIB_NAME} LOCATION)
+# get_dotapp_dir(${APPLICATION_BIN} APPLICATION_APP_LOCATION)
 # add_custom_command(
-#     TARGET ${PROJECT_NAME} 
-#     POST_BUILD COMMAND cp -r "${CMAKE_SOURCE_DIR}/assets" "${APPLICATION_APP_LOCATION}")
+# TARGET ${PROJECT_NAME}
+# POST_BUILD COMMAND cp -r "${CMAKE_SOURCE_DIR}/assets" "${APPLICATION_APP_LOCATION}")
 
 # add_custom_command(
-#     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${LOCATION_FOR_THE_APP} 
-#     DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/res" 
-#     COMMAND -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/${LOCATION_FOR_THE_APP})
+# OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${LOCATION_FOR_THE_APP}
+# DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/res"
+# COMMAND -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/${LOCATION_FOR_THE_APP})
 
 # add_custom_target(copy_assets
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+# COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
 # )
 # add_dependencies(mytarget copy_assets)
