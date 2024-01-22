@@ -248,7 +248,7 @@ After selecting the root of our project structure, click on the main target (1).
 ![Custom scheme in iOS](/docs/custom_schema_ios.png)
 
 #### Step 2
-The next step involves adding code to the AppDelegate class in our project that notifies the delegate about the arrival of a callback.
+The next step involves adding code to the AppController class in our project that notifies the delegate about the arrival of a callback.
 ```objective-c
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     onikami::eosclient::SigningRequestCallbackManager::getInstance()->onCallback([url.absoluteString UTF8String]);

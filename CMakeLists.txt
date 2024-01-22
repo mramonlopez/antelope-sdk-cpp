@@ -6,7 +6,7 @@ project(eosclient VERSION 0.1 LANGUAGES CXX C)
 set(LIB_NAME eosclient)
 
 option(EOSCLIENT_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
-option(ABIEOS_NO_INT128 "disable use of __int128" OFF)
+option(ABIEOS_NO_INT128 "disable use of __int128" ON)
 
 IF(!EOSCLIENT_CURL_NAME)
     set(EOSCLIENT_CURL_NAME "curl")
